@@ -1,1055 +1,2145 @@
-// ================================
-// HAPPY BIRTHDAY WEBSITE SCRIPT
-// (No Password Version)
-// ================================
+/* =========================================================
+   JEE MASTREY PRO
+   FIREBASE + GOOGLE AUTH + APP ENGINE
+========================================================= */
 
-// Elements
-const welcome = document.getElementById("welcome");
-const website = document.getElementById("website");
-const startBtn = document.getElementById("startBtn");
+"use strict";
 
-const chapters = document.querySelectorAll(".chapter");
-const nextBtns = document.querySelectorAll(".nextBtn");
 
-const bgMusic = document.getElementById("bgMusic");
-const chapterSong = document.getElementById("chapter9Song");
+/* =========================================================
+   FIREBASE
+========================================================= */
 
-const musicBtn = document.getElementById("musicBtn");
-const cakeBtn = document.getElementById("cakeBtn");
-const restartBtn = document.getElementById("restart");
+import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
-// Show Welcome Screen
-window.onload = () => {
-    welcome.style.display = "flex";
-    website.style.display = "none";
+import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
+    onAuthStateChanged,
+    signOut
+} from
+    "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyD_5w3LysiBj08MahlcdJrVBv07NnCioN4",
+
+    authDomain:
+        "jeemastreypro-a09a2.firebaseapp.com",
+
+    databaseURL:
+        "https://jeemastreypro-a09a2-default-rtdb.firebaseio.com",
+
+    projectId:
+        "jeemastreypro-a09a2",
+
+    storageBucket:
+        "jeemastreypro-a09a2.firebasestorage.app",
+
+    messagingSenderId:
+        "727766561784",
+
+    appId:
+        "1:727766561784:web:4a6256de720befd2a25c0d",
+
+    measurementId:
+        "G-49F0VCKW1S"
+
 };
 
-// ================================
-// START JOURNEY
-// ================================
 
-let currentChapter = 0;
+const firebaseApp =
+    initializeApp(firebaseConfig);
 
-startBtn.addEventListener("click", () => {
+const auth =
+    getAuth(firebaseApp);
 
-    welcome.style.display = "none";
-    website.style.display = "block";
+const googleProvider =
+    new GoogleAuthProvider();
 
-    chapters.forEach(c => c.classList.remove("active"));
 
-    currentChapter = 0;
-    chapters[currentChapter].classList.add("active");
-
-    bgMusic.play().catch(() => {});
-
-    startHearts();
-
+googleProvider.setCustomParameters({
+    prompt: "select_account"
 });
 
-// ================================
-// NEXT BUTTONS
-// ================================
 
-nextBtns.forEach(btn => {
+/* =========================================================
+   APP STATE
+========================================================= */
 
-    btn.addEventListener("click", () => {
+const AppState = {
 
-        if(currentChapter === 8){
-            chapterSong.pause();
-            chapterSong.currentTime = 0;
-            bgMusic.play().catch(() => {});
-            musicBtn.innerHTML = "▶ Play The Song";
+    loggedIn: false,
+
+    authType: "guest",
+
+    user: {
+
+        name: "Guest Student",
+
+        initial: "G",
+
+        email: "",
+
+        photo: "",
+
+        uid: ""
+
+    },
+
+    selectedExam: "JEE Main",
+
+    progress: 0,
+
+    currentPage: "homePage"
+
+};
+
+
+/* =========================================================
+   DOM HELPERS
+========================================================= */
+
+const $ = selector =>
+    document.querySelector(selector);
+
+const $$ = selector =>
+    document.querySelectorAll(selector);
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const splashScreen =
+    $("#splashScreen");
+
+const welcomeScreen =
+    $("#welcomeScreen");
+
+const mainApp =
+    $("#mainApp");
+
+const loadingProgress =
+    $("#loadingProgress");
+
+const loadingText =
+    $("#loadingText");
+
+const guestLoginBtn =
+    $("#guestLoginBtn");
+
+const googleLoginBtn =
+    $("#googleLoginBtn");
+
+const googleButtonText =
+    $("#googleButtonText");
+
+const loginStatus =
+    $("#loginStatus");
+
+const profileBtn =
+    $("#profileBtn");
+
+const profileInitial =
+    $("#profileInitial");
+
+const largeProfileInitial =
+    $("#largeProfileInitial");
+
+const profileName =
+    $("#profileName");
+
+const profileEmail =
+    $("#profileEmail");
+
+const logoutBtn =
+    $("#logoutBtn");
+
+const overallProgress =
+    $("#overallProgress");
+
+const progressBar =
+    $("#progressBar");
+
+const predictorMarks =
+    $("#predictorMarks");
+
+const predictorExam =
+    $("#predictorExam");
+
+const predictorCategory =
+    $("#predictorCategory");
+
+const predictorGender =
+    $("#predictorGender");
+
+const predictBtn =
+    $("#predictBtn");
+
+const predictionResult =
+    $("#predictionResult");
+
+const predictedPercentile =
+    $("#predictedPercentile");
+
+const predictedRank =
+    $("#predictedRank");
+
+const predictedRange =
+    $("#predictedRange");
+
+const formulaSearch =
+    $("#formulaSearch");
+
+const formulaList =
+    $("#formulaList");
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeApp
+);
+
+
+function initializeApp() {
+
+    loadSavedData();
+
+    setupNavigation();
+
+    setupLogin();
+
+    setupExamSelection();
+
+    setupPredictor();
+
+    setupFormulaSearch();
+
+    setupBackButtons();
+
+    setupLogout();
+
+    updateProfileUI();
+
+    updateProgressUI();
+
+    startSplash();
+
+    watchFirebaseAuth();
+
+}
+
+
+/* =========================================================
+   SPLASH
+========================================================= */
+
+function startSplash() {
+
+    let progress = 0;
+
+    const messages = [
+
+        "Initializing JEE MASTREY...",
+
+        "Loading study engine...",
+
+        "Preparing syllabus...",
+
+        "Preparing formula bank...",
+
+        "Preparing practice arena...",
+
+        "Starting your journey..."
+
+    ];
+
+
+    const interval = setInterval(() => {
+
+        progress +=
+            Math.floor(Math.random() * 12) + 6;
+
+
+        if (progress > 100) {
+            progress = 100;
         }
 
-        chapters[currentChapter].classList.remove("active");
 
-        currentChapter++;
+        if (loadingProgress) {
 
-        if(currentChapter >= chapters.length){
-            currentChapter = chapters.length - 1;
+            loadingProgress.style.width =
+                `${progress}%`;
+
         }
 
-        chapters[currentChapter].classList.add("active");
 
-        // Chapter 10 Celebration
-        if(currentChapter === 9){
-            startCelebration();
-        }else{
-            stopCelebration();
+        const index =
+            Math.min(
+                Math.floor(progress / 20),
+                messages.length - 1
+            );
+
+
+        if (loadingText) {
+
+            loadingText.textContent =
+                messages[index];
+
         }
+
+
+        if (progress >= 100) {
+
+            clearInterval(interval);
+
+            setTimeout(() => {
+
+                if (AppState.loggedIn) {
+
+                    showMainApp();
+
+                } else {
+
+                    showWelcome();
+
+                }
+
+            }, 400);
+
+        }
+
+    }, 220);
+
+}
+
+
+/* =========================================================
+   SCREEN CONTROL
+========================================================= */
+
+function showWelcome() {
+
+    splashScreen?.classList.add("hidden");
+
+    welcomeScreen?.classList.remove("hidden");
+
+    mainApp?.classList.add("hidden");
+
+}
+
+
+function showMainApp() {
+
+    splashScreen?.classList.add("hidden");
+
+    welcomeScreen?.classList.add("hidden");
+
+    mainApp?.classList.remove("hidden");
+
+    showPage(
+        AppState.currentPage || "homePage"
+    );
+
+}
+
+
+/* =========================================================
+   FIREBASE AUTH STATE
+========================================================= */
+
+function watchFirebaseAuth() {
+
+    onAuthStateChanged(
+        auth,
+        user => {
+
+            if (!user) {
+
+                return;
+
+            }
+
+
+            AppState.loggedIn = true;
+
+            AppState.authType = "google";
+
+
+            const name =
+                user.displayName ||
+                user.email?.split("@")[0] ||
+                "Google Student";
+
+
+            AppState.user = {
+
+                name: name,
+
+                initial:
+                    getInitial(name),
+
+                email:
+                    user.email || "",
+
+                photo:
+                    user.photoURL || "",
+
+                uid:
+                    user.uid || ""
+
+            };
+
+
+            saveData();
+
+            updateProfileUI();
+
+
+            /*
+                If login happened after
+                the welcome screen was shown,
+                open the app immediately.
+            */
+
+            showMainApp();
+
+            setLoginStatus(
+                `Welcome, ${name}!`,
+                false
+            );
+
+        }
+    );
+
+
+    /*
+        Handles redirect results if the browser
+        was sent to Google and returned.
+    */
+
+    getRedirectResult(auth)
+        .then(result => {
+
+            if (!result) {
+                return;
+            }
+
+            const user = result.user;
+
+            if (!user) {
+                return;
+            }
+
+            AppState.loggedIn = true;
+
+            AppState.authType = "google";
+
+            const name =
+                user.displayName ||
+                user.email?.split("@")[0] ||
+                "Google Student";
+
+            AppState.user = {
+
+                name,
+
+                initial:
+                    getInitial(name),
+
+                email:
+                    user.email || "",
+
+                photo:
+                    user.photoURL || "",
+
+                uid:
+                    user.uid || ""
+
+            };
+
+            saveData();
+
+            updateProfileUI();
+
+            showMainApp();
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Redirect login error:",
+                error
+            );
+
+            showAuthError(error);
+
+        });
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function setupLogin() {
+
+
+    /* ================= GUEST ================= */
+
+    if (guestLoginBtn) {
+
+        guestLoginBtn.addEventListener(
+            "click",
+            () => {
+
+                AppState.loggedIn = true;
+
+                AppState.authType = "guest";
+
+                AppState.user = {
+
+                    name: "Guest Student",
+
+                    initial: "G",
+
+                    email: "",
+
+                    photo: "",
+
+                    uid: ""
+
+                };
+
+
+                saveData();
+
+                updateProfileUI();
+
+                showMainApp();
+
+                showToast(
+                    "Guest mode activated"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ================= GOOGLE ================= */
+
+    if (googleLoginBtn) {
+
+        googleLoginBtn.addEventListener(
+            "click",
+            googleLogin
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GOOGLE LOGIN
+========================================================= */
+
+async function googleLogin() {
+
+    if (!googleLoginBtn) {
+        return;
+    }
+
+
+    googleLoginBtn.disabled = true;
+
+
+    if (googleButtonText) {
+
+        googleButtonText.textContent =
+            "Connecting to Google...";
+
+    }
+
+
+    setLoginStatus(
+        "Opening Google sign-in...",
+        false
+    );
+
+
+    try {
+
+        /*
+            Popup is used first.
+
+            This is Firebase's standard
+            browser authentication method.
+        */
+
+        const result =
+            await signInWithPopup(
+                auth,
+                googleProvider
+            );
+
+
+        const user =
+            result.user;
+
+
+        if (!user) {
+
+            throw new Error(
+                "Google account was not returned."
+            );
+
+        }
+
+
+        AppState.loggedIn = true;
+
+        AppState.authType = "google";
+
+
+        const name =
+            user.displayName ||
+            user.email?.split("@")[0] ||
+            "Google Student";
+
+
+        AppState.user = {
+
+            name,
+
+            initial:
+                getInitial(name),
+
+            email:
+                user.email || "",
+
+            photo:
+                user.photoURL || "",
+
+            uid:
+                user.uid || ""
+
+        };
+
+
+        saveData();
+
+        updateProfileUI();
+
+        setLoginStatus(
+            "Google sign-in successful!",
+            false
+        );
+
+
+        showToast(
+            `Welcome ${name}!`
+        );
+
+
+        setTimeout(
+            showMainApp,
+            300
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Google sign-in failed:",
+            error
+        );
+
+
+        /*
+            On some mobile browsers / hosted
+            environments popup authentication
+            can fail.
+
+            We then try redirect authentication.
+        */
+
+        if (
+            error.code ===
+                "auth/popup-blocked" ||
+
+            error.code ===
+                "auth/popup-closed-by-user" ||
+
+            error.code ===
+                "auth/cancelled-popup-request"
+        ) {
+
+            setLoginStatus(
+                "Switching to Google redirect...",
+                false
+            );
+
+
+            try {
+
+                await signInWithRedirect(
+                    auth,
+                    googleProvider
+                );
+
+                return;
+
+            } catch (redirectError) {
+
+                console.error(
+                    "Redirect failed:",
+                    redirectError
+                );
+
+                showAuthError(
+                    redirectError
+                );
+
+            }
+
+        } else {
+
+            showAuthError(error);
+
+        }
+
+    } finally {
+
+        googleLoginBtn.disabled = false;
+
+
+        if (googleButtonText) {
+
+            googleButtonText.textContent =
+                "Continue with Google";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   AUTH ERROR
+========================================================= */
+
+function showAuthError(error) {
+
+    let message =
+        "Google sign-in could not be completed.";
+
+
+    switch (error?.code) {
+
+        case "auth/operation-not-allowed":
+
+            message =
+                "Google Sign-In is not enabled in Firebase.";
+
+            break;
+
+
+        case "auth/unauthorized-domain":
+
+            message =
+                "This website domain is not authorized in Firebase.";
+
+            break;
+
+
+        case "auth/popup-blocked":
+
+            message =
+                "Google popup was blocked. Please allow popups.";
+
+            break;
+
+
+        case "auth/popup-closed-by-user":
+
+            message =
+                "Google sign-in was cancelled.";
+
+            break;
+
+
+        case "auth/network-request-failed":
+
+            message =
+                "Network error. Check your internet connection.";
+
+            break;
+
+
+        case "auth/invalid-api-key":
+
+            message =
+                "Firebase API configuration is invalid.";
+
+            break;
+
+
+        case "auth/internal-error":
+
+            message =
+                "Firebase returned an internal error.";
+
+            break;
+
+    }
+
+
+    setLoginStatus(
+        message,
+        true
+    );
+
+
+    showToast(message);
+
+}
+
+
+/* =========================================================
+   LOGIN STATUS
+========================================================= */
+
+function setLoginStatus(
+    message,
+    error = false
+) {
+
+    if (!loginStatus) {
+        return;
+    }
+
+
+    loginStatus.textContent =
+        message;
+
+
+    loginStatus.classList.toggle(
+        "error",
+        error
+    );
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function setupLogout() {
+
+    if (!logoutBtn) {
+        return;
+    }
+
+
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                if (
+                    AppState.authType ===
+                    "google"
+                ) {
+
+                    await signOut(auth);
+
+                }
+
+
+                AppState.loggedIn = false;
+
+                AppState.authType = "guest";
+
+                AppState.user = {
+
+                    name: "Guest Student",
+
+                    initial: "G",
+
+                    email: "",
+
+                    photo: "",
+
+                    uid: ""
+
+                };
+
+
+                saveData();
+
+                updateProfileUI();
+
+                showWelcome();
+
+                showToast(
+                    "Signed out successfully"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Sign out error:",
+                    error
+                );
+
+                showToast(
+                    "Unable to sign out."
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function setupNavigation() {
+
+    $$(".nav-item")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const page =
+                        button.dataset.page;
+
+                    if (page) {
+
+                        showPage(page);
+
+                    }
+
+                }
+            );
+
+        });
+
+
+    $$(".quick-card")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const page =
+                        button.dataset.page;
+
+                    if (page) {
+
+                        showPage(page);
+
+                    }
+
+                }
+            );
+
+        });
+
+
+    if (profileBtn) {
+
+        profileBtn.addEventListener(
+            "click",
+            () => {
+
+                showPage(
+                    "profilePage"
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+function showPage(pageId) {
+
+    $$(".page")
+        .forEach(page => {
+
+            page.classList.remove(
+                "active-page"
+            );
+
+            page.classList.add(
+                "hidden-page"
+            );
+
+        });
+
+
+    const target =
+        document.getElementById(pageId);
+
+
+    if (!target) {
+        return;
+    }
+
+
+    target.classList.remove(
+        "hidden-page"
+    );
+
+    target.classList.add(
+        "active-page"
+    );
+
+
+    AppState.currentPage =
+        pageId;
+
+
+    updateNavigation(
+        pageId
+    );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+
+    saveData();
+
+}
+
+
+function updateNavigation(pageId) {
+
+    $$(".nav-item")
+        .forEach(item => {
+
+            item.classList.remove(
+                "active"
+            );
+
+
+            if (
+                item.dataset.page ===
+                pageId
+            ) {
+
+                item.classList.add(
+                    "active"
+                );
+
+            }
+
+        });
+
+}
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+function setupBackButtons() {
+
+    $$(".back-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    showPage(
+                        "homePage"
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   EXAM SELECTION
+========================================================= */
+
+function setupExamSelection() {
+
+    $$(".exam-card")
+        .forEach(card => {
+
+            card.addEventListener(
+                "click",
+                () => {
+
+                    const exam =
+                        card.dataset.exam;
+
+                    if (!exam) {
+                        return;
+                    }
+
+
+                    AppState.selectedExam =
+                        exam;
+
+
+                    saveData();
+
+
+                    showToast(
+                        `${exam} selected`
+                    );
+
+
+                    showPage(
+                        "testsPage"
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+function getInitial(name) {
+
+    if (!name) {
+        return "G";
+    }
+
+
+    return name
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+}
+
+
+function updateProfileUI() {
+
+    const name =
+        AppState.user.name ||
+        "Guest Student";
+
+
+    const initial =
+        AppState.user.initial ||
+        getInitial(name);
+
+
+    if (profileInitial) {
+
+        profileInitial.textContent =
+            initial;
+
+    }
+
+
+    if (largeProfileInitial) {
+
+        largeProfileInitial.textContent =
+            initial;
+
+    }
+
+
+    if (profileName) {
+
+        profileName.textContent =
+            name;
+
+    }
+
+
+    if (profileEmail) {
+
+        profileEmail.textContent =
+            AppState.user.email ||
+            "Guest Student";
+
+    }
+
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+function updateProgressUI() {
+
+    const progress =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Number(
+                    AppState.progress
+                ) || 0
+            )
+        );
+
+
+    if (overallProgress) {
+
+        overallProgress.textContent =
+            `${progress}%`;
+
+    }
+
+
+    if (progressBar) {
+
+        progressBar.style.width =
+            `${progress}%`;
+
+    }
+
+
+    const circle =
+        $(".progress-circle");
+
+
+    if (circle) {
+
+        circle.style.background =
+            `conic-gradient(
+                var(--secondary)
+                ${progress * 3.6}deg,
+                rgba(255,255,255,0.08)
+                ${progress * 3.6}deg
+            )`;
+
+
+        const text =
+            circle.querySelector("span");
+
+
+        if (text) {
+
+            text.textContent =
+                progress;
+
+        }
+
+    }
+
+}
+
+
+function increaseProgress(
+    amount = 1
+) {
+
+    AppState.progress +=
+        amount;
+
+
+    if (
+        AppState.progress > 100
+    ) {
+
+        AppState.progress =
+            100;
+
+    }
+
+
+    saveData();
+
+    updateProgressUI();
+
+}
+
+
+/* =========================================================
+   PREDICTOR
+========================================================= */
+
+function setupPredictor() {
+
+    if (!predictBtn) {
+        return;
+    }
+
+
+    predictBtn.addEventListener(
+        "click",
+        () => {
+
+            const marks =
+                Number(
+                    predictorMarks.value
+                );
+
+
+            if (
+                !Number.isFinite(marks) ||
+                marks < 0
+            ) {
+
+                showToast(
+                    "Please enter valid marks."
+                );
+
+                predictorMarks.focus();
+
+                return;
+
+            }
+
+
+            let result;
+
+
+            if (
+                predictorExam.value ===
+                "jee-main"
+            ) {
+
+                result =
+                    calculateJeeMainPrediction(
+                        marks
+                    );
+
+            } else {
+
+                result =
+                    calculateJeeAdvancedPrediction(
+                        marks
+                    );
+
+            }
+
+
+            displayPrediction(
+                result
+            );
+
+
+            increaseProgress(1);
+
+        }
+    );
+
+}
+
+
+function calculateJeeMainPrediction(
+    marks
+) {
+
+    const maxMarks = 300;
+
+
+    const percentage =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                (marks / maxMarks) * 100
+            )
+        );
+
+
+    let percentile;
+
+
+    if (percentage >= 95) {
+
+        percentile =
+            99.90 +
+            ((percentage - 95) / 5) *
+            0.09;
+
+    } else if (percentage >= 85) {
+
+        percentile =
+            99.0 +
+            ((percentage - 85) / 10) *
+            0.9;
+
+    } else if (percentage >= 70) {
+
+        percentile =
+            95.0 +
+            ((percentage - 70) / 15) *
+            4;
+
+    } else if (percentage >= 50) {
+
+        percentile =
+            80.0 +
+            ((percentage - 50) / 20) *
+            15;
+
+    } else {
+
+        percentile =
+            Math.max(
+                1,
+                percentage * 1.6
+            );
+
+    }
+
+
+    percentile =
+        Math.min(
+            99.99,
+            Math.max(
+                1,
+                percentile
+            )
+        );
+
+
+    const candidates =
+        1500000;
+
+
+    const rank =
+        Math.max(
+            1,
+            Math.round(
+                candidates *
+                (1 - percentile / 100)
+            )
+        );
+
+
+    return {
+
+        percentile,
+
+        rank,
+
+        rangeLow:
+            Math.max(
+                1,
+                Math.round(
+                    rank * 0.85
+                )
+            ),
+
+        rangeHigh:
+            Math.round(
+                rank * 1.15
+            )
+
+    };
+
+}
+
+
+function calculateJeeAdvancedPrediction(
+    marks
+) {
+
+    const maxMarks = 360;
+
+
+    const percentage =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                (marks / maxMarks) * 100
+            )
+        );
+
+
+    const percentile =
+        Math.max(
+            1,
+            Math.min(
+                99.99,
+                percentage * 0.95
+            )
+        );
+
+
+    const candidates =
+        200000;
+
+
+    const rank =
+        Math.max(
+            1,
+            Math.round(
+                candidates *
+                (1 - percentile / 100)
+            )
+        );
+
+
+    return {
+
+        percentile,
+
+        rank,
+
+        rangeLow:
+            Math.max(
+                1,
+                Math.round(
+                    rank * 0.85
+                )
+            ),
+
+        rangeHigh:
+            Math.round(
+                rank * 1.15
+            )
+
+    };
+
+}
+
+
+function displayPrediction(
+    result
+) {
+
+    if (!predictionResult) {
+        return;
+    }
+
+
+    predictedPercentile.textContent =
+        result.percentile.toFixed(2);
+
+
+    predictedRank.textContent =
+        result.rank.toLocaleString();
+
+
+    predictedRange.textContent =
+        `${result.rangeLow.toLocaleString()} – ${result.rangeHigh.toLocaleString()}`;
+
+
+    predictionResult.classList.remove(
+        "hidden"
+    );
+
+
+    predictionResult.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+}
+
+
+/* =========================================================
+   FORMULA DATABASE
+========================================================= */
+
+const formulaDatabase = [
+
+    {
+        formula: "F = ma",
+        name: "Newton's Second Law",
+        subject: "Physics"
+    },
+
+    {
+        formula: "v = u + at",
+        name: "Equation of Motion",
+        subject: "Physics"
+    },
+
+    {
+        formula: "s = ut + ½at²",
+        name: "Equation of Motion",
+        subject: "Physics"
+    },
+
+    {
+        formula: "v² = u² + 2as",
+        name: "Equation of Motion",
+        subject: "Physics"
+    },
+
+    {
+        formula: "p = mv",
+        name: "Linear Momentum",
+        subject: "Physics"
+    },
+
+    {
+        formula: "W = Fs cosθ",
+        name: "Work Done",
+        subject: "Physics"
+    },
+
+    {
+        formula: "P = W/t",
+        name: "Power",
+        subject: "Physics"
+    },
+
+    {
+        formula: "E = mc²",
+        name: "Mass Energy Relation",
+        subject: "Physics"
+    },
+
+    {
+        formula: "PV = nRT",
+        name: "Ideal Gas Equation",
+        subject: "Chemistry"
+    },
+
+    {
+        formula: "pH = -log[H⁺]",
+        name: "pH",
+        subject: "Chemistry"
+    },
+
+    {
+        formula: "n = m/M",
+        name: "Number of Moles",
+        subject: "Chemistry"
+    },
+
+    {
+        formula: "a² + b² = c²",
+        name: "Pythagorean Theorem",
+        subject: "Mathematics"
+    },
+
+    {
+        formula: "sin²θ + cos²θ = 1",
+        name: "Trigonometric Identity",
+        subject: "Mathematics"
+    },
+
+    {
+        formula: "d/dx(xⁿ) = nxⁿ⁻¹",
+        name: "Power Rule",
+        subject: "Mathematics"
+    }
+
+];
+
+
+function setupFormulaSearch() {
+
+    if (!formulaSearch) {
+        return;
+    }
+
+
+    formulaSearch.addEventListener(
+        "input",
+        () => {
+
+            const query =
+                formulaSearch.value
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!query) {
+
+                renderFormulas(
+                    formulaDatabase
+                );
+
+                return;
+
+            }
+
+
+            const filtered =
+                formulaDatabase.filter(
+                    item =>
+
+                        item.formula
+                            .toLowerCase()
+                            .includes(query)
+
+                        ||
+
+                        item.name
+                            .toLowerCase()
+                            .includes(query)
+
+                        ||
+
+                        item.subject
+                            .toLowerCase()
+                            .includes(query)
+
+                );
+
+
+            renderFormulas(
+                filtered
+            );
+
+        }
+    );
+
+}
+
+
+function renderFormulas(items) {
+
+    if (!formulaList) {
+        return;
+    }
+
+
+    if (!items.length) {
+
+        formulaList.innerHTML = `
+
+            <div class="formula-item">
+
+                <span>
+                    No formula found
+                </span>
+
+                <small>
+                    Try another search.
+                </small>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    formulaList.innerHTML =
+        items.map(item => `
+
+            <div class="formula-item">
+
+                <span>
+                    ${escapeHTML(
+                        item.formula
+                    )}
+                </span>
+
+                <small>
+                    ${escapeHTML(
+                        item.name
+                    )}
+                    •
+                    ${escapeHTML(
+                        item.subject
+                    )}
+                </small>
+
+            </div>
+
+        `).join("");
+
+}
+
+
+/* =========================================================
+   SAFE HTML
+========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message) {
+
+    const old =
+        document.querySelector(
+            ".app-toast"
+        );
+
+
+    if (old) {
+        old.remove();
+    }
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        "app-toast";
+
+
+    toast.textContent =
+        message;
+
+
+    Object.assign(
+        toast.style,
+        {
+
+            position: "fixed",
+
+            left: "50%",
+
+            bottom: "100px",
+
+            transform:
+                "translateX(-50%) translateY(20px)",
+
+            zIndex: "9999",
+
+            padding: "12px 18px",
+
+            borderRadius: "14px",
+
+            background:
+                "rgba(20,25,50,0.96)",
+
+            border:
+                "1px solid rgba(255,255,255,0.12)",
+
+            color: "#fff",
+
+            fontSize: "11px",
+
+            fontWeight: "700",
+
+            boxShadow:
+                "0 15px 40px rgba(0,0,0,0.35)",
+
+            opacity: "0",
+
+            transition:
+                "all 0.25s ease",
+
+            maxWidth: "85vw",
+
+            textAlign: "center"
+
+        }
+    );
+
+
+    document.body.appendChild(
+        toast
+    );
+
+
+    requestAnimationFrame(() => {
+
+        toast.style.opacity =
+            "1";
+
+        toast.style.transform =
+            "translateX(-50%) translateY(0)";
 
     });
 
-});
-// ===============================
-// PREMIUM GIFT OPENING
-// ===============================
 
-const gifts = document.querySelectorAll(".gift");
-const giftMessage = document.getElementById("giftMessage");
+    setTimeout(() => {
 
-gifts.forEach(gift => {
+        toast.style.opacity =
+            "0";
 
-    gift.addEventListener("click", () => {
+        toast.style.transform =
+            "translateX(-50%) translateY(10px)";
 
-        // Open Gift
-        gift.classList.add("open");
+        setTimeout(() => {
 
-        // Typewriter Message
-        const message = gift.dataset.message;
+            toast.remove();
 
-        giftMessage.innerHTML = "";
+        }, 300);
 
-        let i = 0;
+    }, 2500);
 
-        function typeGift() {
+}
 
-            if (i < message.length) {
 
-                giftMessage.innerHTML += message.charAt(i);
+/* =========================================================
+   LOCAL STORAGE
+========================================================= */
 
-                i++;
+function saveData() {
 
-                setTimeout(typeGift, 40);
+    try {
+
+        localStorage.setItem(
+            "JEE_MASTREY_PRO_STATE",
+            JSON.stringify(
+                AppState
+            )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Unable to save app state.",
+            error
+        );
+
+    }
+
+}
+
+
+function loadSavedData() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "JEE_MASTREY_PRO_STATE"
+            );
+
+
+        if (!saved) {
+            return;
+        }
+
+
+        const data =
+            JSON.parse(saved);
+
+
+        if (
+            data &&
+            typeof data ===
+            "object"
+        ) {
+
+            if (
+                typeof data.loggedIn ===
+                "boolean"
+            ) {
+
+                AppState.loggedIn =
+                    data.loggedIn;
+
+            }
+
+
+            if (data.authType) {
+
+                AppState.authType =
+                    data.authType;
+
+            }
+
+
+            if (data.user) {
+
+                AppState.user = {
+
+                    ...AppState.user,
+
+                    ...data.user
+
+                };
+
+            }
+
+
+            if (data.selectedExam) {
+
+                AppState.selectedExam =
+                    data.selectedExam;
+
+            }
+
+
+            if (
+                Number.isFinite(
+                    Number(
+                        data.progress
+                    )
+                )
+            ) {
+
+                AppState.progress =
+                    Number(
+                        data.progress
+                    );
+
+            }
+
+
+            if (data.currentPage) {
+
+                AppState.currentPage =
+                    data.currentPage;
 
             }
 
         }
 
-        typeGift();
-
-        // Floating Hearts
-        for (let j = 0; j < 20; j++) {
-
-            setTimeout(() => {
-
-                const heart = document.createElement("div");
-
-                heart.innerHTML = Math.random() > 0.5 ? "❤️" : "✨";
-
-                heart.style.position = "fixed";
-
-                const rect = gift.getBoundingClientRect();
-
-                heart.style.left = (rect.left + rect.width / 2) + "px";
-                heart.style.top = (rect.top + rect.height / 2) + "px";
-
-                heart.style.fontSize = (20 + Math.random() * 15) + "px";
-
-                heart.style.pointerEvents = "none";
-
-                heart.style.zIndex = "9999";
-
-                document.body.appendChild(heart);
-
-                heart.animate([
-                    {
-                        transform: "translate(0,0) scale(.5)",
-                        opacity: 1
-                    },
-                    {
-                        transform: `translate(${Math.random()*200-100}px,-250px) scale(1.8)`,
-                        opacity: 0
-                    }
-                ], {
-                    duration: 1800,
-                    easing: "ease-out"
-                });
-
-                setTimeout(() => {
-                    heart.remove();
-                }, 1800);
-
-            }, j * 80);
-
-        }
-
-    });
-
-});
-// ================================
-// CAKE
-// ================================
-
-if(cakeBtn){
-
-cakeBtn.addEventListener("click",()=>{
-
-    alert("🎂 Happy Birthday Ammadu ❤️");
-
-    createFireworks();
-
-});
-
-}
-
-// ================================
-// MUSIC
-// ================================
-
-const vinyl = document.getElementById("vinyl");
-
-if (musicBtn) {
-
-    musicBtn.addEventListener("click", () => {
-
-        if (chapterSong.paused) {
-
-            // Pause background music
-            bgMusic.pause();
-
-            // Play Chapter 9 song
-            chapterSong.currentTime = 0;
-            chapterSong.play();
-
-            // Start vinyl animation
-            if(vinyl) vinyl.classList.add("spin");
-
-            musicBtn.innerHTML = "⏸ Pause Song";
-
-            startMusicEffects();   // ❤️ Start hearts & music notes
-
-        } else {
-
-            // Stop Chapter 9 song
-            chapterSong.pause();
-            chapterSong.currentTime = 0;
-
-            // Resume background music
-            bgMusic.play().catch(() => {});
-
-            // Stop vinyl animation
-            if(vinyl) vinyl.classList.remove("spin");
-
-            musicBtn.innerHTML = "▶ Play The Song";
-
-        }
-
-    });
-
-}
-
-/* When the song ends */
-chapterSong.addEventListener("ended", () => {
-
-    if(vinyl) vinyl.classList.remove("spin");
-
-    bgMusic.play().catch(() => {});
-
-    musicBtn.innerHTML = "▶ Play The Song ❤️";
-
-});
-function startMusicEffects(){
-
-    for(let i=0;i<50;i++){
-
-        setTimeout(()=>{
-
-            const note=document.createElement("div");
-
-            note.innerHTML=Math.random()>0.5?"🎵":"🎶";
-
-            note.style.position="fixed";
-
-            note.style.left=Math.random()*100+"vw";
-
-            note.style.top="100vh";
-
-            note.style.fontSize=(20+Math.random()*20)+"px";
-
-            note.style.pointerEvents="none";
-
-            note.style.zIndex="9999";
-
-            document.body.appendChild(note);
-
-            note.animate([
-
-                {
-                    transform:"translateY(0)",
-                    opacity:1
-                },
-
-                {
-                    transform:"translateY(-100vh)",
-                    opacity:0
-                }
-
-            ],{
-
-                duration:4000
-
-            });
-
-            setTimeout(()=>{
-
-                note.remove();
-
-            },4000);
-
-        },i*150);
+    } catch (error) {
+
+        console.warn(
+            "Saved data could not be loaded.",
+            error
+        );
 
     }
 
 }
-// ======================================
-// PREMIUM LOVE LETTER
-// ======================================
 
-const envelope = document.getElementById("openLetter");
-const letterBox = document.getElementById("letterBox");
-const letterText = document.getElementById("letterText");
 
-const fullLetter = letterText.innerText;
+/* =========================================================
+   ESCAPE
+========================================================= */
 
-letterText.innerHTML = "";
+document.addEventListener(
+    "keydown",
+    event => {
 
-function typeLetter(){
+        if (
+            event.key ===
+            "Escape"
+        ) {
 
-    let i = 0;
+            if (
+                mainApp &&
+                !mainApp.classList.contains(
+                    "hidden"
+                )
+            ) {
 
-    function type(){
+                showPage(
+                    "homePage"
+                );
 
-        if(i < fullLetter.length){
-
-            letterText.innerHTML =
-                fullLetter.substring(0,i+1) +
-                '<span class="cursor">|</span>';
-
-            i++;
-
-            createHeart();
-
-            setTimeout(type,35);
-
-        }else{
-
-            letterText.innerHTML =
-                fullLetter +
-                '<span class="cursor">|</span>';
+            }
 
         }
 
     }
+);
 
-    type();
 
-}
+/* =========================================================
+   DOUBLE TAP
+========================================================= */
 
-if(envelope){
+let lastTouchEnd = 0;
 
-    envelope.addEventListener("click",()=>{
 
-        envelope.style.transform="scale(0)";
-        envelope.style.opacity="0";
+document.addEventListener(
+    "touchend",
+    event => {
 
-        setTimeout(()=>{
+        const now =
+            Date.now();
 
-            envelope.parentElement.style.display="none";
 
-            letterBox.style.display="block";
+        if (
+            now - lastTouchEnd <=
+            300
+        ) {
 
-            setTimeout(()=>{
-
-                letterBox.classList.add("show");
-
-                typeLetter();
-
-            },200);
-
-        },500);
-
-    });
-
-}
-
-
-// Floating hearts while typing
-
-function createHeart(){
-
-    const heart=document.createElement("div");
-
-    heart.innerHTML="❤️";
-
-    heart.className="typingHeart";
-
-    heart.style.left=(40+Math.random()*20)+"vw";
-
-    document.body.appendChild(heart);
-
-    setTimeout(()=>{
-
-        heart.remove();
-
-    },2500);
-
-}
-// ================================
-// FLOATING HEARTS
-// ================================
-
-let heartInterval;
-
-function startHearts(){
-
-    clearInterval(heartInterval);
-
-    heartInterval = setInterval(()=>{
-
-        const heart = document.createElement("div");
-
-        heart.className = "heart";
-        heart.innerHTML = "❤️";
-
-        heart.style.left = Math.random() * 100 + "vw";
-        heart.style.fontSize = (18 + Math.random() * 25) + "px";
-
-        document.body.appendChild(heart);
-
-        setTimeout(()=>{
-            heart.remove();
-        },6000);
-
-    },500);
-
-}
-// ================================
-// FIREWORKS
-// ================================
-
-function createFireworks(){
-
-const area=document.getElementById("fireworks");
-    if(!area)return;
-
-for(let i=0;i<70;i++){
-
-const spark=document.createElement("div");
-
-spark.className="sparkle";
-
-spark.style.left=Math.random()*100+"%";
-
-spark.style.top=Math.random()*100+"%";
-
-area.appendChild(spark);
-
-setTimeout(()=>{
-
-spark.remove();
-
-},2000);
-
-}
-
-}
-
-// ================================
-// RESTART
-// ================================
-
-if(restartBtn){
-
-restartBtn.addEventListener("click",()=>{
-
-location.reload();
-
-});
-
-           }
-// ================================
-// TOUCH EFFECTS (Bubbles + Hearts)
-// ================================
-
-document.addEventListener("click", createTouchEffect);
-document.addEventListener("touchstart", (e) => {
-    createTouchEffect(e.touches[0]);
-});
-
-function createTouchEffect(e){
-
-    const x = e.clientX;
-    const y = e.clientY;
-
-    for(let i=0;i<10;i++){
-
-        const bubble=document.createElement("div");
-        bubble.className="bubble";
-        bubble.style.left=x+"px";
-        bubble.style.top=y+"px";
-
-        bubble.style.setProperty("--x",(Math.random()*200-100)+"px");
-        bubble.style.setProperty("--y",(Math.random()*200-100)+"px");
-
-        bubble.innerHTML=Math.random()>0.5?"❤️":"✨";
-
-        document.body.appendChild(bubble);
-
-        setTimeout(()=>{
-            bubble.remove();
-        },1500);
-
-    }
-
-}
-// ================================
-// CHAPTER 10 CELEBRATION
-// ================================
-
-let celebrationInterval;
-
-function startCelebration() {
-
-    const icons = ["🎈","🎊","🎉","✨","❤️","🌸"];
-
-    celebrationInterval = setInterval(() => {
-
-        const item = document.createElement("div");
-
-        item.className = "partyItem";
-
-        item.innerHTML = icons[Math.floor(Math.random() * icons.length)];
-
-        item.style.left = Math.random() * 100 + "vw";
-        item.style.fontSize = (20 + Math.random() * 30) + "px";
-
-        document.body.appendChild(item);
-
-        setTimeout(() => {
-            item.remove();
-        }, 4000);
-
-    }, 120);
-
-    createFireworks();
-}
-
-function stopCelebration() {
-    clearInterval(celebrationInterval);
-
-    document.querySelectorAll(".partyItem").forEach(e => e.remove());
-}
-// ================================
-// PREMIUM BACKGROUND EFFECTS
-// ================================
-
-createStars();
-createPetals();
-
-function createStars(){
-
-setInterval(()=>{
-
-const star=document.createElement("div");
-
-star.className="star";
-
-star.style.left=Math.random()*100+"vw";
-star.style.top=Math.random()*100+"vh";
-
-document.body.appendChild(star);
-
-setTimeout(()=>{
-star.remove();
-},3000);
-
-},200);
-
-}
-
-function createPetals(){
-
-setInterval(()=>{
-
-const petal=document.createElement("div");
-
-petal.className="petal";
-
-petal.innerHTML="🌸";
-
-petal.style.left=Math.random()*100+"vw";
-petal.style.fontSize=(18+Math.random()*18)+"px";
-
-document.body.appendChild(petal);
-
-setTimeout(()=>{
-petal.remove();
-},10000);
-
-},800);
-
-}
-
-// Floating "I Love You"
-setInterval(()=>{
-
-const love=document.createElement("div");
-
-love.innerHTML="❤️ I Love You ❤️ KODIGUDDU";
-
-love.style.position="fixed";
-love.style.left=Math.random()*80+"vw";
-love.style.bottom="-40px";
-love.style.color="#ffd6ec";
-love.style.fontWeight="bold";
-love.style.pointerEvents="none";
-love.style.zIndex="999";
-
-love.animate([
-{transform:"translateY(0)",opacity:1},
-{transform:"translateY(-120vh)",opacity:0}
-],{
-duration:6000
-});
-
-document.body.appendChild(love);
-
-setTimeout(()=>{
-love.remove();
-},6000);
-
-},7000);
-// ==============================
-// CARD HEART EFFECT
-// ==============================
-
-document.querySelectorAll(".card,.timeBox,.gift,.photo").forEach(box=>{
-
-box.addEventListener("click",()=>{
-
-for(let i=0;i<8;i++){
-
-const heart=document.createElement("div");
-
-heart.innerHTML=Math.random()>0.5?"❤️":"✨";
-
-heart.style.position="fixed";
-
-const rect=box.getBoundingClientRect();
-
-heart.style.left=(rect.left+rect.width/2)+"px";
-heart.style.top=(rect.top+rect.height/2)+"px";
-
-heart.style.pointerEvents="none";
-heart.style.fontSize="22px";
-heart.style.zIndex="9999";
-
-heart.animate([
-{
-transform:"translate(0,0) scale(.5)",
-opacity:1
-},
-{
-transform:`translate(${Math.random()*160-80}px,${Math.random()*160-80}px) scale(1.8)`,
-opacity:0
-}
-],{
-duration:900
-});
-
-document.body.appendChild(heart);
-
-setTimeout(()=>{
-heart.remove();
-},900);
-
-}
-
-});
-
-});
-/*====================================
-      LOVE LOCK - PART 3
-====================================*/
-
-const dayPicker = document.getElementById("dayPicker");
-const monthPicker = document.getElementById("monthPicker");
-const yearPicker = document.getElementById("yearPicker");
-
-const unlockBtn = document.getElementById("unlockBtn");
-const chanceCount = document.getElementById("chanceCount");
-const roseArea = document.getElementById("roseArea");
-const timerArea = document.getElementById("timerArea");
-const lockScreen = document.getElementById("lockScreen");
-
-const PASSWORD = {
-    day:16,
-    month:9,
-    year:2024
-};
-
-const months = [
-"January","February","March","April","May","June",
-"July","August","September","October","November","December"
-];
-
-/* Fill Days */
-
-for(let i=1;i<=31;i++){
-
-    let option=document.createElement("option");
-
-    option.value=i;
-
-    option.text=i;
-
-    dayPicker.appendChild(option);
-
-}
-
-/* Fill Months */
-
-months.forEach((m,index)=>{
-
-    let option=document.createElement("option");
-
-    option.value=index+1;
-
-    option.text=m;
-
-    monthPicker.appendChild(option);
-
-});
-
-/* Fill Years */
-
-for(let y=1900;y<=2100;y++){
-
-    let option=document.createElement("option");
-
-    option.value=y;
-
-    option.text=y;
-
-    yearPicker.appendChild(option);
-
-}
-
-let attempts=5;
-
-let locked=false;
-
-unlockBtn.onclick=function(){
-
-if(locked) return;
-
-const day=Number(dayPicker.value);
-
-const month=Number(monthPicker.value);
-
-const year=Number(yearPicker.value);
-
-if(
-day===PASSWORD.day &&
-month===PASSWORD.month &&
-year===PASSWORD.year
-){
-
-unlockLove();
-
-}else{
-
-wrongDate();
-
-}
-
-};
-
-function wrongDate(){
-    
-    vibratePhone();
-
-attempts--;
-
-chanceCount.innerHTML=attempts;
-
-const msgs=[
-
-"🌹 Not this memory...  ",
-
-"🌸 Close your eyes... Remember any special date 💖",
-
-"❤️ Love always remembers... Try again.",
-
-"🌷 One last chance...Think about our proposal",
-
-"🥀 Too many wrong memories..."
-
-];
-
-roseArea.innerHTML=msgs[5-attempts-1];
-
-document.querySelector(".lockContainer").animate([
-
-{transform:"translateX(-12px)"},
-
-{transform:"translateX(12px)"},
-
-{transform:"translateX(-8px)"},
-
-{transform:"translateX(8px)"},
-
-{transform:"translateX(0)"}
-
-],{
-
-duration:450
-
-});
-
-if (attempts <= 0) {
-    startTimer();
-}
-    
-}
-function startTimer() {
-
-    unlockBtn.disabled = true;
-
-    let timeLeft = 60;
-
-    timerArea.innerHTML = "Try again in " + timeLeft + " seconds";
-
-    const timer = setInterval(() => {
-
-        timeLeft--;
-
-        timerArea.innerHTML = "Try again in " + timeLeft + " seconds";
-
-        if (timeLeft <= 0) {
-
-            clearInterval(timer);
-
-            attempts = 5;
-            chanceCount.innerHTML = attempts;
-
-            unlockBtn.disabled = false;
-
-            timerArea.innerHTML = "";
-
-            roseArea.innerHTML = "";
+            event.preventDefault();
 
         }
 
-    }, 1000);
 
-}
-function unlockLove(){
-    
-    playHeartUnlock();
+        lastTouchEnd =
+            now;
 
-unlockBtn.disabled=true;
+    },
+    {
+        passive: false
+    }
+);
 
-const rose=document.createElement("div");
 
-rose.className="unlockRose";
+/* =========================================================
+   READY
+========================================================= */
 
-rose.innerHTML="🌹";
-
-document.body.appendChild(rose);
-
-const text=document.createElement("div");
-
-text.className="unlockText";
-
-text.innerHTML=`
-🌹<br>
-16 September 2024 ❤️<br>
-Our Proposal day
-`;
-
-document.body.appendChild(text);
-
-for(let i=0;i<120;i++){
-
-setTimeout(()=>{
-
-const petal=document.createElement("div");
-
-petal.className="petal";
-
-petal.innerHTML=Math.random()>0.5?"🌸":"❤️";
-
-petal.style.left=Math.random()*100+"vw";
-
-petal.style.animationDuration=
-(4+Math.random()*4)+"s";
-
-document.body.appendChild(petal);
-
-setTimeout(()=>petal.remove(),8000);
-
-},i*40);
-
-}
-
-for(let i=0;i<80;i++){
-
-setTimeout(()=>{
-
-const star=document.createElement("div");
-
-star.className="sparkle";
-
-star.innerHTML="✨";
-
-star.style.left=Math.random()*100+"vw";
-
-star.style.top=Math.random()*100+"vh";
-
-document.body.appendChild(star);
-
-setTimeout(()=>star.remove(),1500);
-
-},i*25);
-
-}
-
-setTimeout(()=>{
-
-lockScreen.style.transition="2s";
-
-lockScreen.style.opacity="0";
-
-setTimeout(()=>{
-
-    lockScreen.style.display = "none";
-
-    welcome.style.display = "flex";
-    website.style.display = "none";
-
-    rose.remove();
-    text.remove();
-
-},2000);
-},5500);
-
-           }
-//=====================================
-// HEART LOCK ANIMATION
-//=====================================
-
-function playHeartUnlock(){
-
-const lock=document.createElement("div");
-
-lock.className="heartLock";
-
-lock.innerHTML="💖";
-
-document.body.appendChild(lock);
-
-setTimeout(()=>{
-
-const key=document.createElement("div");
-
-key.className="magicKey";
-
-key.innerHTML="🗝️";
-
-document.body.appendChild(key);
-
-setTimeout(()=>{
-
-const flash=document.createElement("div");
-
-flash.className="unlockFlash";
-
-document.body.appendChild(flash);
-
-setTimeout(()=>{
-
-flash.remove();
-key.remove();
-lock.remove();
-
-},900);
-
-},2800);
-
-},800);
-
-}
-/*==================================
-      LIVE BACKGROUND
-==================================*/
-
-setInterval(()=>{
-
-if(document.getElementById("lockScreen").style.display==="none") return;
-
-const heart=document.createElement("div");
-
-heart.className="floatingHeart";
-
-heart.innerHTML=Math.random()>0.5?"❤️":"💖";
-
-heart.style.left=Math.random()*100+"vw";
-
-heart.style.fontSize=(15+Math.random()*18)+"px";
-
-heart.style.animationDuration=(6+Math.random()*5)+"s";
-
-document.body.appendChild(heart);
-
-setTimeout(()=>heart.remove(),11000);
-
-},500);
-
-
-setInterval(()=>{
-
-if(document.getElementById("lockScreen").style.display==="none") return;
-
-const petal=document.createElement("div");
-
-petal.className="floatingPetal";
-
-petal.innerHTML="🌸";
-
-petal.style.left=Math.random()*100+"vw";
-
-petal.style.fontSize=(18+Math.random()*12)+"px";
-
-petal.style.animationDuration=(7+Math.random()*5)+"s";
-
-document.body.appendChild(petal);
-
-setTimeout(()=>petal.remove(),12000);
-
-},700);
-
-
-/* Glow selected picker */
-
-const selects=document.querySelectorAll("#dayPicker,#monthPicker,#yearPicker");
-
-selects.forEach(s=>{
-
-s.addEventListener("change",()=>{
-
-s.classList.add("selectedGlow");
-
-setTimeout(()=>{
-
-s.classList.remove("selectedGlow");
-
-},500);
-
-});
-
-});
-
-
-/* Small vibration on wrong password */
-
-function vibratePhone(){
-
-if(navigator.vibrate){
-
-navigator.vibrate([100,80,100]);
-
-}
-
-   }
+console.log(
+    "JEE MASTREY PRO + Firebase initialized."
+);
