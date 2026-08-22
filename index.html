@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+          maximum-scale=1.0, user-scalable=no">
+
+    <meta name="theme-color" content="#050816">
+
+    <meta name="description"
+          content="JEE MASTREY PRO - Advanced Competitive Exam Preparation">
+
+    <title>JEE MASTREY PRO</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="appBackground">
+    <div class="bg-orb orb-one"></div>
+    <div class="bg-orb orb-two"></div>
+    <div class="bg-orb orb-three"></div>
+</div>
+
+
+<!-- ================= SPLASH ================= -->
+
+<section id="splashScreen" class="screen splash-screen">
+
+    <div class="splash-logo">
+        <div class="logo-ring">
+            <span>JM</span>
+        </div>
+    </div>
+
+    <h1 class="splash-title">
+        JEE MASTREY
+        <span>PRO</span>
+    </h1>
+
+    <p class="splash-subtitle">
+        Learn • Practice • Test • Master
+    </p>
+
+    <div class="loading-container">
+        <div class="loading-bar">
+            <div id="loadingProgress"></div>
+        </div>
+
+        <p id="loadingText">
+            Preparing your study universe...
+        </p>
+    </div>
+
+</section>
+
+
+<!-- ================= LOGIN ================= -->
+
+<section id="welcomeScreen" class="screen hidden">
+
+    <div class="welcome-container">
+
+        <div class="welcome-logo">
+            <div class="logo-ring small">
+                <span>JM</span>
+            </div>
+        </div>
+
+        <p class="eyebrow">
+            YOUR PERSONAL STUDY COMMAND CENTER
+        </p>
+
+        <h1>
+            Welcome to
+            <span>JEE MASTREY PRO</span>
+        </h1>
+
+        <p class="welcome-description">
+            A complete preparation system for
+            JEE Main, JEE Advanced, NEET and CA.
+        </p>
+
+        <button id="guestLoginBtn"
+                class="primary-btn">
+
+            <span>Continue as Guest</span>
+            <span>→</span>
+
+        </button>
+
+        <button id="googleLoginBtn"
+                class="secondary-btn">
+
+            <span class="google-letter">G</span>
+
+            <span id="googleButtonText">
+                Continue with Google
+            </span>
+
+        </button>
+
+        <p id="loginStatus" class="login-status"></p>
+
+        <p class="login-note">
+            Sign in with Google to save your profile and progress.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= MAIN APP ================= -->
+
+<main id="mainApp" class="hidden">
+
+<header class="app-header">
+
+    <div class="header-left">
+
+        <div class="mini-logo">
+            JM
+        </div>
+
+        <div>
+            <p class="header-small">
+                JEE MASTREY
+            </p>
+
+            <h2>
+                PRO
+            </h2>
+        </div>
+
+    </div>
+
+    <button id="profileBtn"
+            class="profile-button">
+
+        <span id="profileInitial">
+            G
+        </span>
+
+    </button>
+
+</header>
+
+
+<!-- ================= HOME ================= -->
+
+<section id="homePage"
+         class="page active-page">
+
+    <div class="greeting-section">
+
+        <p class="muted">
+            Welcome back 👋
+        </p>
+
+        <h1>
+            Ready to
+            <span>master?</span>
+        </h1>
+
+        <p>
+            Choose your exam and start your preparation.
+        </p>
+
+    </div>
+
+
+    <div class="section-heading">
+        <h3>Choose Your Exam</h3>
+        <span>Explore</span>
+    </div>
+
+
+    <div class="exam-grid">
+
+        <button class="exam-card"
+                data-exam="JEE Main">
+
+            <div class="exam-icon">
+                JEE
+            </div>
+
+            <div>
+                <h3>JEE Main</h3>
+                <p>Engineering Entrance</p>
+            </div>
+
+            <span>→</span>
+
+        </button>
+
+
+        <button class="exam-card"
+                data-exam="JEE Advanced">
+
+            <div class="exam-icon advanced">
+                JEE
+            </div>
+
+            <div>
+                <h3>JEE Advanced</h3>
+                <p>Advanced Engineering</p>
+            </div>
+
+            <span>→</span>
+
+        </button>
+
+
+        <button class="exam-card"
+                data-exam="NEET">
+
+            <div class="exam-icon neet">
+                N
+            </div>
+
+            <div>
+                <h3>NEET</h3>
+                <p>Medical Entrance</p>
+            </div>
+
+            <span>→</span>
+
+        </button>
+
+
+        <button class="exam-card"
+                data-exam="CA">
+
+            <div class="exam-icon ca">
+                CA
+            </div>
+
+            <div>
+                <h3>CA</h3>
+                <p>Chartered Accountancy</p>
+            </div>
+
+            <span>→</span>
+
+        </button>
+
+    </div>
+
+
+    <div class="section-heading">
+        <h3>Quick Access</h3>
+    </div>
+
+
+    <div class="quick-grid">
+
+        <button class="quick-card"
+                data-page="testsPage">
+
+            <span class="quick-icon">📝</span>
+
+            <strong>Tests</strong>
+
+            <small>Practice now</small>
+
+        </button>
+
+
+        <button class="quick-card"
+                data-page="syllabusPage">
+
+            <span class="quick-icon">📚</span>
+
+            <strong>Syllabus</strong>
+
+            <small>Theory & topics</small>
+
+        </button>
+
+
+        <button class="quick-card"
+                data-page="formulaPage">
+
+            <span class="quick-icon">∑</span>
+
+            <strong>Formulas</strong>
+
+            <small>Formula bank</small>
+
+        </button>
+
+
+        <button class="quick-card"
+                data-page="predictorPage">
+
+            <span class="quick-icon">🎯</span>
+
+            <strong>Predictor</strong>
+
+            <small>Rank & percentile</small>
+
+        </button>
+
+    </div>
+
+
+    <div class="section-heading">
+        <h3>Your Progress</h3>
+        <span>View all</span>
+    </div>
+
+
+    <div class="progress-card">
+
+        <div class="progress-top">
+
+            <div>
+                <p>Overall Preparation</p>
+
+                <h2 id="overallProgress">
+                    0%
+                </h2>
+            </div>
+
+            <div class="progress-circle">
+                <span>0</span>
+            </div>
+
+        </div>
+
+        <div class="progress-track">
+            <div id="progressBar"
+                 class="progress-fill">
+            </div>
+        </div>
+
+        <p class="progress-message">
+            Start your first test to begin tracking progress.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= TESTS ================= -->
+
+<section id="testsPage"
+         class="page hidden-page">
+
+    <div class="page-title">
+
+        <button class="back-btn">←</button>
+
+        <div>
+            <p>Practice Arena</p>
+            <h1>Tests</h1>
+        </div>
+
+    </div>
+
+
+    <div class="test-mode-card">
+
+        <div class="test-mode-icon">⚡</div>
+
+        <div>
+            <h2>Topic-wise Tests</h2>
+            <p>Practice individual chapters and topics.</p>
+        </div>
+
+        <button>Start</button>
+
+    </div>
+
+
+    <div class="test-mode-card">
+
+        <div class="test-mode-icon">🧠</div>
+
+        <div>
+            <h2>Mock Tests</h2>
+            <p>Full examination-style practice.</p>
+        </div>
+
+        <button>Start</button>
+
+    </div>
+
+
+    <div class="test-mode-card">
+
+        <div class="test-mode-icon">🎯</div>
+
+        <div>
+            <h2>Custom Test</h2>
+            <p>Choose subject, chapter and difficulty.</p>
+        </div>
+
+        <button>Build</button>
+
+    </div>
+
+
+    <div class="coming-card">
+
+        <span>🔒</span>
+
+        <div>
+            <h3>PYQ Library</h3>
+
+            <p>
+                Previous Year Questions will be added
+                in a future content update.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SYLLABUS ================= -->
+
+<section id="syllabusPage"
+         class="page hidden-page">
+
+    <div class="page-title">
+
+        <button class="back-btn">←</button>
+
+        <div>
+            <p>Complete Curriculum</p>
+            <h1>Syllabus</h1>
+        </div>
+
+    </div>
+
+
+    <div class="subject-card">
+
+        <div class="subject-icon physics">⚛</div>
+
+        <div>
+            <h2>Physics</h2>
+            <p>Complete topic structure</p>
+        </div>
+
+        <span>→</span>
+
+    </div>
+
+
+    <div class="subject-card">
+
+        <div class="subject-icon chemistry">🧪</div>
+
+        <div>
+            <h2>Chemistry</h2>
+            <p>Physical • Organic • Inorganic</p>
+        </div>
+
+        <span>→</span>
+
+    </div>
+
+
+    <div class="subject-card">
+
+        <div class="subject-icon maths">∑</div>
+
+        <div>
+            <h2>Mathematics</h2>
+            <p>Complete topic structure</p>
+        </div>
+
+        <span>→</span>
+
+    </div>
+
+
+    <div class="subject-card">
+
+        <div class="subject-icon biology">🧬</div>
+
+        <div>
+            <h2>Biology</h2>
+            <p>NEET preparation</p>
+        </div>
+
+        <span>→</span>
+
+    </div>
+
+
+    <div class="theory-banner">
+
+        <span>📖</span>
+
+        <div>
+            <h3>Theory Library</h3>
+
+            <p>
+                Concepts, explanations and revision notes.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FORMULAS ================= -->
+
+<section id="formulaPage"
+         class="page hidden-page">
+
+    <div class="page-title">
+
+        <button class="back-btn">←</button>
+
+        <div>
+            <p>Revision Center</p>
+            <h1>Formula Bank</h1>
+        </div>
+
+    </div>
+
+
+    <div class="formula-search">
+
+        <input
+            id="formulaSearch"
+            type="search"
+            placeholder="Search formulas...">
+
+    </div>
+
+
+    <div class="formula-category-grid">
+
+        <button class="formula-category">
+            <span>⚡</span>
+            <strong>Physics</strong>
+            <small>All formulas</small>
+        </button>
+
+        <button class="formula-category">
+            <span>🧪</span>
+            <strong>Chemistry</strong>
+            <small>All formulas</small>
+        </button>
+
+        <button class="formula-category">
+            <span>∑</span>
+            <strong>Mathematics</strong>
+            <small>All formulas</small>
+        </button>
+
+        <button class="formula-category">
+            <span>🧬</span>
+            <strong>Biology</strong>
+            <small>Important facts</small>
+        </button>
+
+    </div>
+
+
+    <div id="formulaList"
+         class="formula-list">
+
+        <div class="formula-item">
+            <span>F = ma</span>
+            <small>Newton's Second Law</small>
+        </div>
+
+        <div class="formula-item">
+            <span>v = u + at</span>
+            <small>Equation of Motion</small>
+        </div>
+
+        <div class="formula-item">
+            <span>E = mc²</span>
+            <small>Mass-Energy Relation</small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PREDICTOR ================= -->
+
+<section id="predictorPage"
+         class="page hidden-page">
+
+    <div class="page-title">
+
+        <button class="back-btn">←</button>
+
+        <div>
+            <p>Analysis Engine</p>
+            <h1>Predictor</h1>
+        </div>
+
+    </div>
+
+
+    <div class="predictor-card">
+
+        <div class="predictor-header">
+
+            <span>🎯</span>
+
+            <div>
+                <h2>Rank & Percentile</h2>
+                <p>Enter your details for an estimate.</p>
+            </div>
+
+        </div>
+
+
+        <label>Exam</label>
+
+        <select id="predictorExam">
+
+            <option value="jee-main">
+                JEE Main
+            </option>
+
+            <option value="jee-advanced">
+                JEE Advanced
+            </option>
+
+        </select>
+
+
+        <label>Marks</label>
+
+        <input
+            id="predictorMarks"
+            type="number"
+            min="0"
+            placeholder="Enter marks">
+
+
+        <label>Category</label>
+
+        <select id="predictorCategory">
+
+            <option value="OPEN">OPEN</option>
+            <option value="EWS">EWS</option>
+            <option value="OBC-NCL">OBC-NCL</option>
+            <option value="SC">SC</option>
+            <option value="ST">ST</option>
+
+        </select>
+
+
+        <label>Gender</label>
+
+        <select id="predictorGender">
+
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+
+        </select>
+
+
+        <button id="predictBtn"
+                class="primary-btn">
+
+            Calculate Prediction
+
+        </button>
+
+    </div>
+
+
+    <div id="predictionResult"
+         class="prediction-result hidden">
+
+        <p>Estimated Result</p>
+
+        <h2 id="predictedPercentile">—</h2>
+
+        <span>Estimated Percentile</span>
+
+        <div class="prediction-stats">
+
+            <div>
+                <strong id="predictedRank">—</strong>
+                <small>Estimated Rank</small>
+            </div>
+
+            <div>
+                <strong id="predictedRange">—</strong>
+                <small>Rank Range</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PROFILE ================= -->
+
+<section id="profilePage"
+         class="page hidden-page">
+
+    <div class="page-title">
+
+        <button class="back-btn">←</button>
+
+        <div>
+            <p>Your Account</p>
+            <h1>Profile</h1>
+        </div>
+
+    </div>
+
+
+    <div class="profile-card">
+
+        <div id="largeProfileInitial"
+             class="large-profile">
+            G
+        </div>
+
+        <h2 id="profileName">
+            Guest Student
+        </h2>
+
+        <p id="profileEmail">
+            JEE MASTREY PRO learner
+        </p>
+
+        <button id="logoutBtn"
+                class="secondary-btn logout-btn">
+
+            Sign Out
+
+        </button>
+
+    </div>
+
+
+    <div class="settings-list">
+
+        <button>
+            👤
+            <span>Personal Details</span>
+            →
+        </button>
+
+        <button>
+            🎓
+            <span>Exam Preferences</span>
+            →
+        </button>
+
+        <button>
+            📊
+            <span>Performance</span>
+            →
+        </button>
+
+        <button>
+            ⚙️
+            <span>Settings</span>
+            →
+        </button>
+
+    </div>
+
+
+    <div class="developer-card">
+
+        <p>DEVELOPED BY</p>
+
+        <h3>
+            V.CHENCHUKIRAN
+        </h3>
+
+        <span>
+            ERTHICAL HACKER • SOC OFFICER
+        </span>
+
+    </div>
+
+</section>
+
+
+<!-- ================= NAV ================= -->
+
+<nav class="bottom-nav">
+
+    <button class="nav-item active"
+            data-page="homePage">
+        <span>⌂</span>
+        <small>Home</small>
+    </button>
+
+    <button class="nav-item"
+            data-page="testsPage">
+        <span>▣</span>
+        <small>Tests</small>
+    </button>
+
+    <button class="nav-item"
+            data-page="syllabusPage">
+        <span>▤</span>
+        <small>Learn</small>
+    </button>
+
+    <button class="nav-item"
+            data-page="formulaPage">
+        <span>∑</span>
+        <small>Formula</small>
+    </button>
+
+    <button class="nav-item"
+            data-page="profilePage">
+        <span>●</span>
+        <small>Profile</small>
+    </button>
+
+</nav>
+
+</main>
+
+
+<!-- IMPORTANT:
+     script.js is a MODULE because Firebase uses imports.
+-->
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
