@@ -1,14 +1,30 @@
 /* =========================================================
    JEE MASTREY PRO
    AI MOCK TEST BACKEND
+   OPENROUTER FREE
    Vercel Serverless Function
 
    JEE + NEET + CA
-   SUBJECT + CHAPTER + TOPIC
-   ORIGINAL AI QUESTIONS
+
+   FEATURES
+   ---------------------------------------------------------
+   • Subject-wise tests
+   • Chapter-wise tests
+   • Topic-wise tests
+   • Difficulty selection
+   • Original AI questions
+   • 4 options
+   • One correct answer
+   • Detailed solutions
+   • JEE: Physics / Chemistry / Mathematics
+   • NEET: Physics / Chemistry / Biology
+   • CA: Accounting / Business Studies / Economics / Law
+   • No PYQs
 ========================================================= */
 
+
 export default async function handler(req, res) {
+
 
     /* =====================================================
        CORS
@@ -29,117 +45,180 @@ export default async function handler(req, res) {
         "Content-Type"
     );
 
+
     if (req.method === "OPTIONS") {
-        return res.status(200).end();
+
+        return res
+            .status(200)
+            .end();
+
     }
+
 
     if (req.method !== "POST") {
+
         return res.status(405).json({
+
             success: false,
-            error: "Only POST requests are allowed."
+
+            error:
+                "Only POST requests are allowed."
+
         });
+
     }
 
 
+
     /* =====================================================
-       API KEY
+       OPENROUTER API KEY
     ===================================================== */
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey =
+        process.env.OPENROUTER_API_KEY;
+
 
     if (!apiKey) {
+
         return res.status(500).json({
+
             success: false,
+
             error:
-                "OPENAI_API_KEY is not configured in Vercel."
+                "OPENROUTER_API_KEY is not configured in Vercel."
+
         });
+
     }
 
 
+
     /* =====================================================
-       REQUEST
+       READ REQUEST BODY
     ===================================================== */
 
     let body = {};
+
 
     try {
 
         body =
             typeof req.body === "string"
+
                 ? JSON.parse(req.body)
+
                 : (req.body || {});
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         return res.status(400).json({
+
             success: false,
-            error: "Invalid request body."
+
+            error:
+                "Invalid request body."
+
         });
+
     }
 
 
+
     /* =====================================================
-       INPUTS
+       INPUT VALUES
     ===================================================== */
 
     const exam =
-        String(body.exam || "jee")
-            .trim()
-            .toLowerCase();
+        String(
+            body.exam || "jee"
+        )
+        .trim()
+        .toLowerCase();
+
 
     const subject =
-        String(body.subject || "all")
-            .trim();
+        String(
+            body.subject || "all"
+        )
+        .trim();
+
 
     const chapter =
-        String(body.chapter || "all")
-            .trim();
+        String(
+            body.chapter || "all"
+        )
+        .trim();
+
 
     const topic =
-        String(body.topic || "all")
-            .trim();
+        String(
+            body.topic || "all"
+        )
+        .trim();
+
 
     const difficulty =
-        String(body.difficulty || "mixed")
-            .trim()
-            .toLowerCase();
+        String(
+            body.difficulty || "mixed"
+        )
+        .trim()
+        .toLowerCase();
+
 
     const questionCount =
         Math.min(
+
             Math.max(
-                Number(body.questionCount) || 5,
+
+                Number(
+                    body.questionCount
+                ) || 5,
+
                 1
+
             ),
+
             30
+
         );
 
 
+
     /* =====================================================
-       SUBJECTS
+       SUBJECT DATABASE
     ===================================================== */
 
     const subjects = {
 
         jee: [
+
             "Physics",
             "Chemistry",
             "Mathematics"
+
         ],
 
         neet: [
+
             "Physics",
             "Chemistry",
             "Biology"
+
         ],
 
         ca: [
+
             "Accounting",
             "Business Studies",
             "Economics",
             "Law"
+
         ]
 
     };
+
 
 
     /* =====================================================
@@ -149,10 +228,16 @@ export default async function handler(req, res) {
     if (!subjects[exam]) {
 
         return res.status(400).json({
+
             success: false,
-            error: "Invalid examination."
+
+            error:
+                "Invalid examination."
+
         });
+
     }
+
 
 
     /* =====================================================
@@ -160,77 +245,55 @@ export default async function handler(req, res) {
     ===================================================== */
 
     if (
+
         subject !== "all" &&
-        !subjects[exam].includes(subject)
+
+        !subjects[exam]
+            .includes(subject)
+
     ) {
 
         return res.status(400).json({
+
             success: false,
+
             error:
                 `${subject} is not available for ${exam.toUpperCase()}.`
+
         });
+
     }
 
 
+
     /* =====================================================
-       NEET SAFETY
+       NEET MATHEMATICS PROTECTION
     ===================================================== */
 
     if (
+
         exam === "neet" &&
-        subject === "Mathematics"
+
+        subject.toLowerCase() ===
+            "mathematics"
+
     ) {
 
         return res.status(400).json({
+
             success: false,
+
             error:
                 "NEET uses Biology instead of Mathematics."
+
         });
+
     }
 
 
-    /* =====================================================
-       SUBJECT
-    ===================================================== */
-
-    const subjectInstruction =
-        subject === "all"
-
-            ? `Questions may use:
-${subjects[exam].join(", ")}.`
-
-            : `Questions MUST be from:
-${subject}.`;
-
 
     /* =====================================================
-       CHAPTER
-    ===================================================== */
-
-    const chapterInstruction =
-        chapter === "all"
-
-            ? "Choose suitable chapters from the selected subject."
-
-            : `Use ONLY this chapter:
-${chapter}.`;
-
-
-    /* =====================================================
-       TOPIC
-    ===================================================== */
-
-    const topicInstruction =
-        topic === "all"
-
-            ? "Choose suitable topics from the selected chapter."
-
-            : `Use ONLY this topic:
-${topic}.`;
-
-
-    /* =====================================================
-       EXAM RULES
+       EXAM INSTRUCTIONS
     ===================================================== */
 
     let examInstruction = "";
@@ -239,58 +302,181 @@ ${topic}.`;
     if (exam === "jee") {
 
         examInstruction = `
+
 EXAMINATION: JEE
 
-Subjects:
+SUBJECTS:
+
 Physics
 Chemistry
 Mathematics
 
-Generate questions appropriate for JEE Main
-and JEE Advanced preparation.
+Generate questions appropriate for
+JEE Main / JEE Advanced preparation.
 
-Use conceptual, numerical and application-based
-questions where appropriate.
+Use:
+
+• conceptual questions
+• numerical questions
+• application questions
+• multi-step reasoning where appropriate
+
+Do not generate questions outside the
+selected syllabus/topic.
+
 `;
+
     }
+
 
 
     if (exam === "neet") {
 
         examInstruction = `
+
 EXAMINATION: NEET
 
-Subjects:
+SUBJECTS:
+
 Physics
 Chemistry
 Biology
 
-IMPORTANT:
+VERY IMPORTANT:
+
 NEET DOES NOT HAVE MATHEMATICS.
 
-For Biology use NCERT-oriented Botany
-and Zoology concepts.
+Biology MUST replace Mathematics.
+
+Biology questions may cover:
+
+• Botany
+• Zoology
+• Cell Biology
+• Genetics
+• Human Physiology
+• Plant Physiology
+• Ecology
+• Reproduction
+• Biotechnology
+• Evolution
+• Animal Biology
 
 Never generate Mathematics for NEET.
+
 `;
+
     }
+
 
 
     if (exam === "ca") {
 
         examInstruction = `
+
 EXAMINATION: CA
 
-Subjects:
+SUBJECTS:
+
 Accounting
 Business Studies
 Economics
 Law
 
-Generate examination-oriented questions
-appropriate for CA preparation.
+Generate questions suitable for CA preparation.
+
+Use:
+
+• conceptual questions
+• numerical/application questions
+• case-based questions
+• reasoning questions
+• legal application questions
+
+when appropriate.
+
 `;
+
     }
+
+
+
+    /* =====================================================
+       SUBJECT INSTRUCTION
+    ===================================================== */
+
+    const subjectInstruction =
+
+        subject === "all"
+
+            ? `
+
+Generate questions across these subjects:
+
+${subjects[exam].join(", ")}
+
+`
+
+            : `
+
+Generate questions ONLY from:
+
+${subject}
+
+`;
+
+
+
+    /* =====================================================
+       CHAPTER INSTRUCTION
+    ===================================================== */
+
+    const chapterInstruction =
+
+        chapter === "all"
+
+            ? `
+
+Choose an appropriate chapter
+from the selected subject.
+
+`
+
+            : `
+
+Generate questions ONLY from:
+
+Chapter:
+${chapter}
+
+`;
+
+
+
+    /* =====================================================
+       TOPIC INSTRUCTION
+    ===================================================== */
+
+    const topicInstruction =
+
+        topic === "all"
+
+            ? `
+
+Choose appropriate topics
+from the selected chapter.
+
+`
+
+            : `
+
+Generate questions ONLY from:
+
+Topic:
+${topic}
+
+`;
+
 
 
     /* =====================================================
@@ -298,35 +484,77 @@ appropriate for CA preparation.
     ===================================================== */
 
     const systemPrompt = `
-You are MASTREY AI,
-the AI question engine of JEE MASTREY PRO.
 
-Your job is to create ORIGINAL practice questions.
+You are MASTREY AI.
 
-IMPORTANT RULES:
+You are the AI question-generation engine
+inside JEE MASTREY PRO.
+
+Your task is to create ORIGINAL
+competitive examination practice questions.
+
+=========================================================
+ABSOLUTE RULES
+=========================================================
 
 1. NEVER generate PYQs.
-2. NEVER copy known exam questions.
-3. NEVER copy textbook questions word-for-word.
-4. Create fresh questions with new values,
+
+2. NEVER copy previous examination questions.
+
+3. NEVER reproduce textbook questions
+   word-for-word.
+
+4. Create fresh questions.
+
+5. Use new numerical values,
    scenarios and wording.
-5. Never intentionally repeat questions.
-6. Follow the selected exam.
-7. Follow the selected subject.
-8. Follow the selected chapter.
-9. Follow the selected topic.
-10. Every question has exactly FOUR options.
-11. Exactly ONE option is correct.
-12. Answer must be 0, 1, 2 or 3.
-13. Give detailed solutions.
-14. Give the tested concept.
-15. Avoid ambiguous questions.
-16. Avoid multiple correct answers.
-17. Avoid impossible questions.
-18. Respect the requested difficulty.
-19. Return ONLY valid JSON.
-20. Do not use markdown.
-21. Do not add explanations outside JSON.
+
+6. Never intentionally repeat a question.
+
+7. Every question must belong to
+   the selected examination.
+
+8. Every question must belong to
+   the selected subject.
+
+9. Respect the selected chapter.
+
+10. Respect the selected topic.
+
+11. Every question must contain
+    EXACTLY FOUR options.
+
+12. Exactly ONE option must be correct.
+
+13. The answer must be represented
+    by a zero-based number.
+
+A = 0
+B = 1
+C = 2
+D = 3
+
+14. Provide the tested concept.
+
+15. Provide a detailed solution.
+
+16. Avoid ambiguous questions.
+
+17. Avoid multiple correct answers.
+
+18. Avoid impossible questions.
+
+19. Follow the requested difficulty.
+
+20. Return ONLY valid JSON.
+
+21. Do not use Markdown.
+
+22. Do not put text before the JSON.
+
+23. Do not put text after the JSON.
+
+=========================================================
 
 ${examInstruction}
 
@@ -336,11 +564,20 @@ ${chapterInstruction}
 
 ${topicInstruction}
 
-DIFFICULTY:
+Difficulty:
+
 ${difficulty}
 
-Generate exactly ${questionCount} questions.
+=========================================================
+
+Generate exactly:
+
+${questionCount}
+
+questions.
+
 `;
+
 
 
     /* =====================================================
@@ -348,7 +585,12 @@ Generate exactly ${questionCount} questions.
     ===================================================== */
 
     const userPrompt = `
-Create a completely fresh ${exam.toUpperCase()} practice test.
+
+Create a completely fresh
+${exam.toUpperCase()} mock test.
+
+Exam:
+${exam.toUpperCase()}
 
 Subject:
 ${subject}
@@ -362,10 +604,12 @@ ${topic}
 Difficulty:
 ${difficulty}
 
-Questions:
+Number of questions:
 ${questionCount}
 
-Return exactly this structure:
+Every question must be unique.
+
+Return EXACTLY this JSON structure:
 
 {
   "questions": [
@@ -389,7 +633,7 @@ Return exactly this structure:
   ]
 }
 
-Answer index:
+Remember:
 
 A = 0
 B = 1
@@ -397,73 +641,98 @@ C = 2
 D = 3
 
 Return JSON only.
+
 `;
 
 
+
     /* =====================================================
-       OPENAI
+       OPENROUTER REQUEST
     ===================================================== */
 
     try {
 
         const response =
+
             await fetch(
-                "https://api.openai.com/v1/chat/completions",
+
+                "https://openrouter.ai/api/v1/chat/completions",
+
                 {
 
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
+
+                        "Authorization":
+                            `Bearer ${apiKey}`,
 
                         "Content-Type":
                             "application/json",
 
-                        "Authorization":
-                            `Bearer ${apiKey}`
+                        "HTTP-Referer":
+                            "https://chenchukiranvemula.github.io/JEE_MASTREY_PRO/",
+
+                        "X-Title":
+                            "JEE MASTREY PRO"
 
                     },
 
-                    body: JSON.stringify({
+                    body:
 
-                        model:
-                            "gpt-4o-mini",
+                        JSON.stringify({
 
-                        temperature:
-                            0.8,
+                            model:
+                                "openai/gpt-oss-20b:free",
 
-                        response_format: {
-                            type:
-                                "json_object"
-                        },
+                            temperature:
+                                0.8,
 
-                        messages: [
+                            max_tokens:
+                                12000,
 
-                            {
-                                role:
-                                    "system",
+                            messages: [
 
-                                content:
-                                    systemPrompt
-                            },
+                                {
 
-                            {
-                                role:
-                                    "user",
+                                    role:
+                                        "system",
 
-                                content:
-                                    userPrompt
+                                    content:
+                                        systemPrompt
+
+                                },
+
+                                {
+
+                                    role:
+                                        "user",
+
+                                    content:
+                                        userPrompt
+
+                                }
+
+                            ],
+
+                            response_format: {
+
+                                type:
+                                    "json_object"
+
                             }
 
-                        ]
-
-                    })
+                        })
 
                 }
+
             );
 
 
+
         /* =================================================
-           OPENAI ERROR
+           OPENROUTER ERROR
         ================================================= */
 
         if (!response.ok) {
@@ -471,34 +740,44 @@ Return JSON only.
             const errorText =
                 await response.text();
 
+
             console.error(
-                "OPENAI API ERROR:",
+                "OPENROUTER API ERROR:",
                 errorText
             );
+
 
             return res.status(500).json({
 
                 success: false,
 
                 error:
-                    "OpenAI request failed.",
+                    "OpenRouter request failed.",
 
                 details:
                     errorText
 
             });
+
         }
 
 
+
         /* =================================================
-           RESPONSE
+           RESPONSE JSON
         ================================================= */
 
         const data =
             await response.json();
 
 
+
+        /* =================================================
+           EXTRACT AI CONTENT
+        ================================================= */
+
         const content =
+
             data
                 ?.choices
                 ?.[0]
@@ -506,55 +785,119 @@ Return JSON only.
                 ?.content;
 
 
+
         if (!content) {
+
+            console.error(
+                "EMPTY OPENROUTER RESPONSE:",
+                JSON.stringify(data)
+            );
+
 
             return res.status(500).json({
 
                 success: false,
 
                 error:
-                    "AI returned an empty response."
+                    "OpenRouter returned an empty response."
+
             });
+
         }
 
 
+
         /* =================================================
-           PARSE
+           CLEAN RESPONSE
+        ================================================= */
+
+        let cleanContent =
+            String(content)
+                .trim();
+
+
+        /*
+           Some free models may still surround JSON
+           with Markdown fences.
+        */
+
+        if (
+            cleanContent
+                .startsWith("```")
+        ) {
+
+            cleanContent =
+                cleanContent
+                    .replace(
+                        /^```(?:json)?/i,
+                        ""
+                    )
+                    .replace(
+                        /```$/i,
+                        ""
+                    )
+                    .trim();
+
+        }
+
+
+
+        /* =================================================
+           PARSE JSON
         ================================================= */
 
         let parsed;
 
+
         try {
 
             parsed =
-                JSON.parse(content);
+                JSON.parse(
+                    cleanContent
+                );
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
-                "AI JSON ERROR:",
-                content
+                "INVALID AI JSON:",
+                cleanContent
             );
+
 
             return res.status(500).json({
 
                 success: false,
 
                 error:
-                    "AI returned invalid question data."
+                    "OpenRouter returned invalid question data.",
+
+                raw:
+                    cleanContent
+                        .substring(
+                            0,
+                            1500
+                        )
+
             });
+
         }
 
 
+
         /* =================================================
-           VALIDATE
+           QUESTIONS CHECK
         ================================================= */
 
         if (
+
             !parsed ||
+
             !Array.isArray(
                 parsed.questions
             )
+
         ) {
 
             return res.status(500).json({
@@ -563,83 +906,201 @@ Return JSON only.
 
                 error:
                     "AI response contains no questions."
+
             });
+
         }
 
+
+
+        /* =================================================
+           VALIDATE QUESTIONS
+        ================================================= */
+
+        const questions = [];
 
         const seen =
             new Set();
 
-        const questions = [];
 
 
         for (
             const q of parsed.questions
         ) {
 
+
+            /* ---------------------------------------------
+               OBJECT
+            --------------------------------------------- */
+
             if (
+
                 !q ||
-                typeof q.question !==
-                    "string"
+
+                typeof q !== "object"
+
             ) {
+
                 continue;
+
             }
 
 
+
+            /* ---------------------------------------------
+               QUESTION TEXT
+            --------------------------------------------- */
+
             if (
-                !Array.isArray(q.options) ||
+
+                typeof q.question !==
+                "string"
+
+            ) {
+
+                continue;
+
+            }
+
+
+
+            /* ---------------------------------------------
+               OPTIONS
+            --------------------------------------------- */
+
+            if (
+
+                !Array.isArray(
+                    q.options
+                )
+
+            ) {
+
+                continue;
+
+            }
+
+
+
+            if (
                 q.options.length !== 4
             ) {
+
                 continue;
+
             }
 
 
+
             if (
+
                 q.options.some(
+
                     option =>
                         typeof option !==
                         "string"
+
                 )
+
             ) {
+
                 continue;
+
             }
 
+
+
+            /* ---------------------------------------------
+               ANSWER
+            --------------------------------------------- */
 
             const answer =
                 Number(q.answer);
 
 
+
             if (
-                !Number.isInteger(answer) ||
+
+                !Number.isInteger(
+                    answer
+                ) ||
+
                 answer < 0 ||
+
                 answer > 3
+
             ) {
+
                 continue;
+
             }
 
 
+
+            /* ---------------------------------------------
+               SUBJECT
+            --------------------------------------------- */
+
             if (
+
                 !subjects[exam]
-                    .includes(q.subject)
+                    .includes(
+                        q.subject
+                    )
+
             ) {
+
                 continue;
+
             }
 
+
+
+            /* ---------------------------------------------
+               SELECTED SUBJECT
+            --------------------------------------------- */
 
             if (
+
                 subject !== "all" &&
+
                 q.subject !== subject
+
             ) {
+
                 continue;
+
             }
 
+
+
+            /* ---------------------------------------------
+               TEXT
+            --------------------------------------------- */
 
             const questionText =
+
                 q.question
                     .trim();
 
 
+
+            if (
+                questionText.length < 5
+            ) {
+
+                continue;
+
+            }
+
+
+
+            /* ---------------------------------------------
+               DUPLICATE PROTECTION
+            --------------------------------------------- */
+
             const duplicateKey =
+
                 questionText
                     .toLowerCase()
                     .replace(
@@ -648,19 +1109,28 @@ Return JSON only.
                     );
 
 
+
             if (
                 seen.has(
                     duplicateKey
                 )
             ) {
+
                 continue;
+
             }
+
 
 
             seen.add(
                 duplicateKey
             );
 
+
+
+            /* ---------------------------------------------
+               SAVE QUESTION
+            --------------------------------------------- */
 
             questions.push({
 
@@ -686,12 +1156,16 @@ Return JSON only.
                     questionText,
 
                 options:
+
                     q.options.map(
+
                         option =>
                             option.trim()
+
                     ),
 
-                answer,
+                answer:
+                    answer,
 
                 concept:
                     q.concept ||
@@ -699,15 +1173,16 @@ Return JSON only.
 
                 explanation:
                     q.explanation ||
-                    "Detailed solution not provided."
+                    "Detailed solution unavailable."
 
             });
 
         }
 
 
+
         /* =================================================
-           EMPTY TEST
+           NO VALID QUESTIONS
         ================================================= */
 
         if (
@@ -719,9 +1194,12 @@ Return JSON only.
                 success: false,
 
                 error:
-                    "AI generated no valid questions."
+                    "OpenRouter generated no valid questions."
+
             });
+
         }
+
 
 
         /* =================================================
@@ -730,39 +1208,66 @@ Return JSON only.
 
         return res.status(200).json({
 
-            success: true,
+            success:
+                true,
 
-            exam,
+            provider:
+                "openrouter",
 
-            subject,
+            model:
+                "openai/gpt-oss-20b:free",
 
-            chapter,
+            exam:
+                exam,
 
-            topic,
+            subject:
+                subject,
 
-            difficulty,
+            chapter:
+                chapter,
+
+            topic:
+                topic,
+
+            difficulty:
+                difficulty,
 
             questionCount:
                 questions.length,
 
-            questions
+            questions:
+                questions
 
         });
 
 
-    } catch (error) {
+    }
+
+
+    /* =====================================================
+       BACKEND ERROR
+    ===================================================== */
+
+    catch (error) {
 
         console.error(
-            "BACKEND ERROR:",
+            "OPENROUTER BACKEND ERROR:",
             error
         );
+
 
         return res.status(500).json({
 
             success: false,
 
             error:
-                "Unable to connect to OpenAI."
+                "Unable to connect to OpenRouter.",
+
+            details:
+                error.message
+
         });
+
     }
-                                    }
+
+           }
