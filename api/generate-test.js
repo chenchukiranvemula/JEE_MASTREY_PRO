@@ -2,18 +2,22 @@
    JEE MASTREY PRO
    AI MOCK TEST BACKEND
    Vercel Serverless Function
+
    JEE + NEET + CA
+   Subject + Chapter + Topic
+   Original AI Questions
+   Results + Detailed Solutions
 ========================================================= */
 
 export default async function handler(req, res) {
 
-    /* -----------------------------------------------------
+    /* =====================================================
        CORS
-    ----------------------------------------------------- */
+    ===================================================== */
 
     res.setHeader(
         "Access-Control-Allow-Origin",
-        "https://chenchukiranvemula.github.io"
+        "*"
     );
 
     res.setHeader(
@@ -38,57 +42,87 @@ export default async function handler(req, res) {
     }
 
 
-    /* -----------------------------------------------------
+    /* =====================================================
        API KEY
-    ----------------------------------------------------- */
+    ===================================================== */
 
-    const apiKey =
-        process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
+
+        console.error(
+            "OPENAI_API_KEY is missing."
+        );
 
         return res.status(500).json({
             success: false,
             error:
-                "OPENAI_API_KEY is not configured on Vercel."
+                "OPENAI_API_KEY is not configured in Vercel."
         });
-
     }
 
 
-    /* -----------------------------------------------------
-       REQUEST DATA
-    ----------------------------------------------------- */
+    /* =====================================================
+       READ REQUEST
+    ===================================================== */
 
-    const body =
-        typeof req.body === "string"
-            ? JSON.parse(req.body)
-            : req.body || {};
+    let body = {};
 
+    try {
+
+        body =
+            typeof req.body === "string"
+                ? JSON.parse(req.body)
+                : (req.body || {});
+
+    } catch (error) {
+
+        return res.status(400).json({
+            success: false,
+            error: "Invalid request data."
+        });
+    }
+
+
+    /* =====================================================
+       INPUTS
+    ===================================================== */
 
     const exam =
         String(body.exam || "jee")
+            .trim()
             .toLowerCase();
 
     const subject =
-        String(body.subject || "all");
+        String(body.subject || "all")
+            .trim();
+
+    const chapter =
+        String(body.chapter || "all")
+            .trim();
+
+    const topic =
+        String(body.topic || "all")
+            .trim();
 
     const difficulty =
-        String(body.difficulty || "mixed");
+        String(body.difficulty || "mixed")
+            .trim()
+            .toLowerCase();
 
     const questionCount =
         Math.min(
             Math.max(
-                Number(body.questionCount) || 20,
+                Number(body.questionCount) || 10,
                 1
             ),
-            50
+            30
         );
 
 
-    /* -----------------------------------------------------
-       VALIDATE EXAM
-    ----------------------------------------------------- */
+    /* =====================================================
+       EXAM SUBJECTS
+    ===================================================== */
 
     const subjects = {
 
@@ -114,15 +148,23 @@ export default async function handler(req, res) {
     };
 
 
+    /* =====================================================
+       VALIDATE EXAM
+    ===================================================== */
+
     if (!subjects[exam]) {
 
         return res.status(400).json({
             success: false,
-            error: "Invalid examination."
+            error:
+                "Invalid examination selected."
         });
-
     }
 
+
+    /* =====================================================
+       VALIDATE SUBJECT
+    ===================================================== */
 
     if (
         subject !== "all" &&
@@ -132,37 +174,85 @@ export default async function handler(req, res) {
         return res.status(400).json({
             success: false,
             error:
-                "Selected subject does not belong to this examination."
+                `${subject} is not available for ${exam.toUpperCase()}.`
         });
-
     }
 
 
-    /* -----------------------------------------------------
-       SUBJECT INSTRUCTION
-    ----------------------------------------------------- */
+    /* =====================================================
+       SPECIAL NEET RULE
+    ===================================================== */
 
-    let subjectInstruction = "";
+    if (
+        exam === "neet" &&
+        subject === "Mathematics"
+    ) {
+
+        return res.status(400).json({
+            success: false,
+            error:
+                "NEET does not use Mathematics. Biology is the correct subject."
+        });
+    }
+
+
+    /* =====================================================
+       SUBJECT INSTRUCTION
+    ===================================================== */
+
+    let subjectInstruction;
 
     if (subject === "all") {
 
         subjectInstruction =
-            `Distribute questions across these subjects:
+            `Distribute the questions across:
 ${subjects[exam].join(", ")}.`;
 
-    }
-    else {
+    } else {
 
         subjectInstruction =
             `Generate questions ONLY from:
 ${subject}.`;
-
     }
 
 
-    /* -----------------------------------------------------
-       EXAM RULES
-    ----------------------------------------------------- */
+    /* =====================================================
+       CHAPTER / TOPIC INSTRUCTION
+    ===================================================== */
+
+    let chapterInstruction;
+
+    if (chapter === "all") {
+
+        chapterInstruction =
+            "You may select appropriate chapters from the selected subject.";
+
+    } else {
+
+        chapterInstruction =
+            `Use ONLY this chapter:
+${chapter}.`;
+    }
+
+
+    let topicInstruction;
+
+    if (topic === "all") {
+
+        topicInstruction =
+            "Use appropriate topics from the selected chapter.";
+
+    } else {
+
+        topicInstruction =
+            `Use ONLY this topic:
+${topic}.`;
+    }
+
+
+    /* =====================================================
+       EXAM INSTRUCTIONS
+    ===================================================== */
 
     let examInstruction = "";
 
@@ -170,134 +260,155 @@ ${subject}.`;
     if (exam === "jee") {
 
         examInstruction = `
-EXAMINATION: JEE
+EXAM: JEE
 
 Subjects:
-- Physics
-- Chemistry
-- Mathematics
+Physics
+Chemistry
+Mathematics
 
-Generate questions appropriate for JEE Main/Advanced preparation.
+Generate questions suitable for JEE Main / JEE Advanced preparation.
 
-Use proper numerical, conceptual and application-based questions.
-Avoid questions that require information outside the selected syllabus.
+Questions may be:
+- conceptual
+- numerical
+- application based
+- multi-step
+
+Do not use material outside the requested syllabus.
 `;
-
     }
 
 
     if (exam === "neet") {
 
         examInstruction = `
-EXAMINATION: NEET
+EXAM: NEET
 
 Subjects:
-- Physics
-- Chemistry
-- Biology
+Physics
+Chemistry
+Biology
 
 IMPORTANT:
-NEET MUST USE BIOLOGY, NOT MATHEMATICS.
+NEET uses BIOLOGY.
+NEET DOES NOT USE MATHEMATICS.
 
-For Biology use appropriate NCERT-oriented
-Botany and Zoology concepts.
+Biology questions should be strongly aligned with
+NCERT-oriented Botany and Zoology concepts.
 
-Generate NEET-style conceptual and application questions.
+Do not generate Mathematics questions.
 `;
-
     }
 
 
     if (exam === "ca") {
 
         examInstruction = `
-EXAMINATION: CA
+EXAM: CA
 
 Subjects:
-- Accounting
-- Business Studies
-- Economics
-- Law
+Accounting
+Business Studies
+Economics
+Law
 
-Generate questions suitable for CA preparation.
+Generate questions appropriate for CA preparation.
 
-Use accounting concepts, business concepts,
-economics concepts and legal concepts as appropriate.
+Questions should test understanding,
+application and examination-oriented concepts.
 `;
-
     }
 
 
-    /* -----------------------------------------------------
-       PROMPT
-    ----------------------------------------------------- */
+    /* =====================================================
+       SYSTEM PROMPT
+    ===================================================== */
 
     const systemPrompt = `
+You are MASTREY AI.
 
-You are MASTREY AI, an expert competitive-exam
-question generator for the JEE MASTREY PRO application.
+You generate original competitive-exam
+practice questions for JEE MASTREY PRO.
 
-Your job is to generate ORIGINAL questions.
+ABSOLUTE RULES:
 
-VERY IMPORTANT RULES:
-
-1. NEVER generate PYQs.
-2. NEVER copy questions from previous examinations.
-3. NEVER reproduce known textbook questions word-for-word.
-4. Generate fresh questions using new values,
-   new scenarios and new wording.
-5. Do not repeat the same question inside one test.
-6. Keep every question relevant to the selected examination.
-7. Each question must have exactly FOUR options.
-8. Exactly ONE option must be correct.
-9. Give a clear explanation.
-10. Give the underlying concept.
-11. Do not include markdown.
-12. Return ONLY valid JSON.
-13. Do not add text before or after the JSON.
-14. For NEET, Biology replaces Mathematics completely.
-15. For CA, use Accounting, Business Studies,
-    Economics and Law.
-16. Avoid ambiguous questions.
-17. Avoid multiple correct answers.
-18. Avoid impossible or trick questions unless
-    the requested difficulty is hard.
-19. Questions must be educationally useful.
+1. Generate ORIGINAL questions.
+2. DO NOT generate PYQs.
+3. DO NOT copy known examination questions.
+4. DO NOT reproduce textbook questions word-for-word.
+5. Use new values, scenarios and wording.
+6. Never intentionally repeat questions.
+7. Every question must be relevant to the requested topic.
+8. Every question must have EXACTLY FOUR options.
+9. There must be EXACTLY ONE correct answer.
+10. The answer index must be 0, 1, 2 or 3.
+11. Provide a detailed explanation.
+12. Provide the underlying concept.
+13. Avoid ambiguous questions.
+14. Avoid multiple correct answers.
+15. Avoid impossible questions.
+16. Respect the requested difficulty.
+17. Return ONLY JSON.
+18. No markdown.
+19. No commentary outside JSON.
+20. Never add Mathematics to NEET.
+21. Never add Biology to JEE.
+22. Never add unrelated subjects to CA.
+23. Follow the requested chapter.
+24. Follow the requested topic.
 
 ${examInstruction}
 
+${subjectInstruction}
+
+${chapterInstruction}
+
+${topicInstruction}
+
 DIFFICULTY:
 ${difficulty}
-
-${subjectInstruction}
 
 Create exactly ${questionCount} questions.
 `;
 
 
+    /* =====================================================
+       USER PROMPT
+    ===================================================== */
+
     const userPrompt = `
+Generate a fresh AI practice test.
 
-Create a completely fresh ${exam.toUpperCase()} mock test.
+EXAM:
+${exam.toUpperCase()}
 
-Difficulty:
-${difficulty}
-
-Subject:
+SUBJECT:
 ${subject}
 
-Number of questions:
+CHAPTER:
+${chapter}
+
+TOPIC:
+${topic}
+
+DIFFICULTY:
+${difficulty}
+
+NUMBER OF QUESTIONS:
 ${questionCount}
 
-Every question must be unique within this test.
+Every question must be different.
 
-Return exactly this JSON structure:
+Return data matching this structure:
 
 {
   "questions": [
     {
       "id": 1,
       "subject": "Physics",
-      "chapter": "Chapter name",
+      "chapter": "Electrostatics",
+      "topic": "Electric Field",
       "difficulty": "medium",
       "question": "Question text",
       "options": [
@@ -307,37 +418,33 @@ Return exactly this JSON structure:
         "Option D"
       ],
       "answer": 0,
-      "concept": "Concept being tested",
+      "concept": "Concept name",
       "explanation": "Detailed step-by-step explanation"
     }
   ]
 }
 
-IMPORTANT:
-
-"answer" must be the ZERO-BASED option index.
+ANSWER INDEX:
 
 A = 0
 B = 1
 C = 2
 D = 3
 
-Do not use A/B/C/D in the answer field.
-Use only 0, 1, 2 or 3.
-
-Return JSON only.
+The answer field MUST contain only
+0, 1, 2 or 3.
 `;
 
 
-    /* -----------------------------------------------------
-       OPENAI REQUEST
-    ----------------------------------------------------- */
+    /* =====================================================
+       OPENAI RESPONSES API
+    ===================================================== */
 
     try {
 
-        const response =
+        const openAIResponse =
             await fetch(
-                "https://api.openai.com/v1/chat/completions",
+                "https://api.openai.com/v1/responses",
                 {
 
                     method: "POST",
@@ -354,31 +461,158 @@ Return JSON only.
 
                     body: JSON.stringify({
 
-                        model:
-                            "gpt-4o-mini",
+                        model: "gpt-5.6-mini",
 
-                        temperature:
-                            0.9,
-
-                        response_format: {
-                            type: "json_object"
-                        },
-
-                        messages: [
-
+                        input: [
                             {
                                 role: "system",
-                                content:
-                                    systemPrompt
+                                content: [
+                                    {
+                                        type: "input_text",
+                                        text:
+                                            systemPrompt
+                                    }
+                                ]
                             },
-
                             {
                                 role: "user",
-                                content:
-                                    userPrompt
+                                content: [
+                                    {
+                                        type: "input_text",
+                                        text:
+                                            userPrompt
+                                    }
+                                ]
+                            }
+                        ],
+
+                        text: {
+
+                            format: {
+
+                                type: "json_schema",
+
+                                name:
+                                    "mock_test",
+
+                                strict: true,
+
+                                schema: {
+
+                                    type: "object",
+
+                                    additionalProperties: false,
+
+                                    properties: {
+
+                                        questions: {
+
+                                            type: "array",
+
+                                            items: {
+
+                                                type: "object",
+
+                                                additionalProperties:
+                                                    false,
+
+                                                properties: {
+
+                                                    id: {
+                                                        type:
+                                                            "integer"
+                                                    },
+
+                                                    subject: {
+                                                        type:
+                                                            "string"
+                                                    },
+
+                                                    chapter: {
+                                                        type:
+                                                            "string"
+                                                    },
+
+                                                    topic: {
+                                                        type:
+                                                            "string"
+                                                    },
+
+                                                    difficulty: {
+                                                        type:
+                                                            "string"
+                                                    },
+
+                                                    question: {
+                                                        type:
+                                                            "string"
+                                                    },
+
+                                                    options: {
+
+                                                        type:
+                                                            "array",
+
+                                                        items: {
+                                                            type:
+                                                                "string"
+                                                        }
+                                                    },
+
+                                                    answer: {
+
+                                                        type:
+                                                            "integer",
+
+                                                        minimum:
+                                                            0,
+
+                                                        maximum:
+                                                            3
+                                                    },
+
+                                                    concept: {
+                                                        type:
+                                                            "string"
+                                                    },
+
+                                                    explanation: {
+                                                        type:
+                                                            "string"
+                                                    }
+
+                                                },
+
+                                                required: [
+
+                                                    "id",
+                                                    "subject",
+                                                    "chapter",
+                                                    "topic",
+                                                    "difficulty",
+                                                    "question",
+                                                    "options",
+                                                    "answer",
+                                                    "concept",
+                                                    "explanation"
+
+                                                ]
+
+                                            }
+
+                                        }
+
+                                    },
+
+                                    required: [
+                                        "questions"
+                                    ]
+
+                                }
+
                             }
 
-                        ]
+                        }
 
                     })
 
@@ -386,18 +620,120 @@ Return JSON only.
             );
 
 
-        /* -------------------------------------------------
+        /* =================================================
            OPENAI ERROR
-        ------------------------------------------------- */
+        ================================================= */
 
-        if (!response.ok) {
+        if (!openAIResponse.ok) {
 
             const errorText =
-                await response.text();
+                await openAIResponse.text();
 
             console.error(
-                "OpenAI error:",
+                "OPENAI API ERROR:",
                 errorText
+            );
+
+            return res.status(
+                openAIResponse.status >= 400 &&
+                openAIResponse.status < 500
+                    ? openAIResponse.status
+                    : 500
+            ).json({
+
+                success: false,
+
+                error:
+                    "OpenAI request failed.",
+
+                details:
+                    process.env.NODE_ENV ===
+                    "development"
+                        ? errorText
+                        : undefined
+
+            });
+
+        }
+
+
+        /* =================================================
+           READ RESPONSE
+        ================================================= */
+
+        const data =
+            await openAIResponse.json();
+
+
+        /* =================================================
+           EXTRACT OUTPUT
+        ================================================= */
+
+        let content = null;
+
+
+        if (
+            typeof data.output_text ===
+            "string"
+        ) {
+
+            content =
+                data.output_text;
+        }
+
+
+        if (!content) {
+
+            const output =
+                Array.isArray(data.output)
+                    ? data.output
+                    : [];
+
+            for (
+                const item of output
+            ) {
+
+                if (
+                    item &&
+                    item.type ===
+                        "message"
+                ) {
+
+                    const parts =
+                        Array.isArray(
+                            item.content
+                        )
+                            ? item.content
+                            : [];
+
+                    for (
+                        const part of parts
+                    ) {
+
+                        if (
+                            part &&
+                            typeof part.text ===
+                                "string"
+                        ) {
+
+                            content =
+                                part.text;
+
+                            break;
+                        }
+                    }
+                }
+
+                if (content) break;
+            }
+        }
+
+
+        if (!content) {
+
+            console.error(
+                "EMPTY OPENAI OUTPUT:",
+                JSON.stringify(data)
             );
 
             return res.status(500).json({
@@ -405,42 +741,15 @@ Return JSON only.
                 success: false,
 
                 error:
-                    "AI generation failed. Check the OpenAI API configuration."
-
-            });
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        /* -------------------------------------------------
-           EXTRACT AI RESPONSE
-        ------------------------------------------------- */
-
-        const content =
-            data?.choices?.[0]?.message?.content;
-
-
-        if (!content) {
-
-            return res.status(500).json({
-
-                success: false,
-
-                error:
                     "The AI returned an empty response."
-
             });
 
         }
 
 
-        /* -------------------------------------------------
+        /* =================================================
            PARSE JSON
-        ------------------------------------------------- */
+        ================================================= */
 
         let parsed;
 
@@ -449,11 +758,10 @@ Return JSON only.
             parsed =
                 JSON.parse(content);
 
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
-                "Invalid AI JSON:",
+                "AI JSON PARSE ERROR:",
                 content
             );
 
@@ -463,17 +771,16 @@ Return JSON only.
 
                 error:
                     "The AI returned invalid question data."
-
             });
-
         }
 
 
-        /* -------------------------------------------------
+        /* =================================================
            VALIDATE QUESTIONS
-        ------------------------------------------------- */
+        ================================================= */
 
         if (
+            !parsed ||
             !Array.isArray(
                 parsed.questions
             )
@@ -485,83 +792,147 @@ Return JSON only.
 
                 error:
                     "AI response does not contain questions."
+            });
+        }
+
+
+        const validQuestions = [];
+
+
+        for (
+            const question
+            of parsed.questions
+        ) {
+
+            if (
+                !question ||
+                typeof question !==
+                    "object"
+            ) {
+                continue;
+            }
+
+
+            if (
+                typeof question.question !==
+                    "string" ||
+                !question.question.trim()
+            ) {
+                continue;
+            }
+
+
+            if (
+                !Array.isArray(
+                    question.options
+                ) ||
+                question.options.length !==
+                    4
+            ) {
+                continue;
+            }
+
+
+            if (
+                question.options.some(
+                    option =>
+                        typeof option !==
+                        "string"
+                )
+            ) {
+                continue;
+            }
+
+
+            const answer =
+                Number(
+                    question.answer
+                );
+
+
+            if (
+                !Number.isInteger(answer) ||
+                answer < 0 ||
+                answer > 3
+            ) {
+                continue;
+            }
+
+
+            if (
+                !subjects[exam]
+                    .includes(
+                        question.subject
+                    )
+            ) {
+                continue;
+            }
+
+
+            if (
+                subject !== "all" &&
+                question.subject !==
+                    subject
+            ) {
+                continue;
+            }
+
+
+            if (
+                typeof question.explanation !==
+                    "string" ||
+                !question.explanation.trim()
+            ) {
+                continue;
+            }
+
+
+            validQuestions.push({
+
+                id:
+                    validQuestions.length + 1,
+
+                subject:
+                    question.subject,
+
+                chapter:
+                    question.chapter ||
+                    chapter,
+
+                topic:
+                    question.topic ||
+                    topic,
+
+                difficulty:
+                    question.difficulty ||
+                    difficulty,
+
+                question:
+                    question.question.trim(),
+
+                options:
+                    question.options.map(
+                        option =>
+                            option.trim()
+                    ),
+
+                answer,
+
+                concept:
+                    question.concept ||
+                    "Core concept",
+
+                explanation:
+                    question.explanation.trim()
 
             });
 
         }
 
 
-        const validQuestions =
-            parsed.questions
-                .filter(question => {
-
-                    if (
-                        !question ||
-                        typeof question !== "object"
-                    ) {
-                        return false;
-                    }
-
-                    if (
-                        typeof question.question !==
-                        "string"
-                    ) {
-                        return false;
-                    }
-
-                    if (
-                        !Array.isArray(
-                            question.options
-                        )
-                    ) {
-                        return false;
-                    }
-
-                    if (
-                        question.options.length !==
-                        4
-                    ) {
-                        return false;
-                    }
-
-                    const answer =
-                        Number(
-                            question.answer
-                        );
-
-                    if (
-                        !Number.isInteger(answer) ||
-                        answer < 0 ||
-                        answer > 3
-                    ) {
-                        return false;
-                    }
-
-                    if (
-                        !subjects[exam]
-                            .includes(
-                                question.subject
-                            )
-                    ) {
-                        return false;
-                    }
-
-                    if (
-                        subject !== "all" &&
-                        question.subject !==
-                            subject
-                    ) {
-                        return false;
-                    }
-
-                    return true;
-
-                });
-
-
-        /* -------------------------------------------------
+        /* =================================================
            REMOVE DUPLICATES
-        ------------------------------------------------- */
+        ================================================= */
 
         const seen =
             new Set();
@@ -572,8 +943,12 @@ Return JSON only.
 
                     const key =
                         question.question
-                            .trim()
-                            .toLowerCase();
+                            .toLowerCase()
+                            .replace(
+                                /\s+/g,
+                                " "
+                            )
+                            .trim();
 
                     if (
                         seen.has(key)
@@ -584,10 +959,13 @@ Return JSON only.
                     seen.add(key);
 
                     return true;
-
                 }
             );
 
+
+        /* =================================================
+           QUESTION COUNT CHECK
+        ================================================= */
 
         if (
             uniqueQuestions.length === 0
@@ -598,16 +976,14 @@ Return JSON only.
                 success: false,
 
                 error:
-                    "No valid questions were generated."
-
+                    "AI did not produce valid questions."
             });
-
         }
 
 
-        /* -------------------------------------------------
-           RETURN TEST
-        ------------------------------------------------- */
+        /* =================================================
+           RETURN
+        ================================================= */
 
         return res.status(200).json({
 
@@ -617,19 +993,34 @@ Return JSON only.
 
             subject,
 
+            chapter,
+
+            topic,
+
             difficulty,
+
+            requestedQuestionCount:
+                questionCount,
+
+            generatedQuestionCount:
+                uniqueQuestions.length,
 
             questions:
                 uniqueQuestions
 
         });
 
-
     }
+
+
+    /* =====================================================
+       BACKEND ERROR
+    ===================================================== */
+
     catch (error) {
 
         console.error(
-            "Backend error:",
+            "BACKEND ERROR:",
             error
         );
 
@@ -639,9 +1030,6 @@ Return JSON only.
 
             error:
                 "Unable to connect to the AI service."
-
         });
-
     }
-
 }
