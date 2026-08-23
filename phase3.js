@@ -1,105 +1,18 @@
 /* =========================================================
    JEE MASTREY PRO
    PHASE 3 — AI PRACTICE ENGINE
-   ---------------------------------------------------------
-   PYQ ENGINE IS INTENTIONALLY DISABLED.
-   PYQs will be added later as a separate update.
-
-   AI endpoint expected:
-   POST /api/generate-test
-
-   Request:
-   {
-      exam,
-      mode,
-      subject,
-      difficulty,
-      questionCount
-   }
-
-   Response:
-   {
-      questions: [
-        {
-          id,
-          subject,
-          chapter,
-          question,
-          options: ["...", "...", "...", "..."],
-          answer: 0,
-          explanation: "...",
-          concept: "..."
-        }
-      ]
-   }
+   VERSION 4 — JEE + NEET + CA
 ========================================================= */
 
-(function () {
-
+(() => {
     "use strict";
 
     /* =====================================================
-       STATE
+       CONFIG
     ===================================================== */
 
-    const P3 = {
-
-        exam: "jee",
-
-        mode: "mock",
-
-        subject: "all",
-
-        difficulty: "mixed",
-
-        questionCount: 20,
-
-        questions: [],
-
-        answers: [],
-
-        currentQuestion: 0,
-
-        remainingSeconds: 60 * 60,
-
-        timerInterval: null,
-
-        testStarted: false,
-
-        generatedByAI: false
-
-    };
-
-
-    /* =====================================================
-       DOM
-    ===================================================== */
-
-    const $ = (id) => document.getElementById(id);
-
-    const practicePage = $("practicePage");
-    const practiceContent = $("practiceContent");
-
-    const startMockBtn = $("startMockBtn");
-    const topicPracticeBtn = $("topicPracticeBtn");
-    const pyqBtn = $("pyqBtn");
-    const importantPracticeBtn = $("importantPracticeBtn");
-
-    const testModal = $("testModal");
-    const closeTest = $("closeTest");
-
-    const testArea = $("testArea");
-    const testExam = $("testExam");
-    const timer = $("timer");
-
-
-    /* =====================================================
-       EXAM CONFIGURATION
-
-       IMPORTANT:
-       NEET = Physics + Chemistry + BIOLOGY
-       JEE  = Physics + Chemistry + Mathematics
-    ===================================================== */
+    const API_URL =
+        "https://jee-mastrey-pro-vqyt.vercel.app/api/generate-test";
 
     const EXAMS = {
 
@@ -109,8 +22,7 @@
                 "Physics",
                 "Chemistry",
                 "Mathematics"
-            ],
-            duration: 180 * 60
+            ]
         },
 
         neet: {
@@ -119,8 +31,7 @@
                 "Physics",
                 "Chemistry",
                 "Biology"
-            ],
-            duration: 200 * 60
+            ]
         },
 
         ca: {
@@ -130,286 +41,427 @@
                 "Business Studies",
                 "Economics",
                 "Law"
-            ],
-            duration: 180 * 60
+            ]
         }
 
     };
 
 
     /* =====================================================
-       SUBJECT DATA
+       STATE
     ===================================================== */
 
-    const SUBJECT_DATA = {
+    let currentExam = "jee";
 
-        Physics: [
-            "Units and Measurements",
-            "Kinematics",
-            "Laws of Motion",
-            "Work Energy and Power",
-            "Rotational Motion",
-            "Gravitation",
-            "Properties of Solids and Liquids",
-            "Thermodynamics",
-            "Kinetic Theory",
-            "Oscillations",
-            "Waves",
-            "Electrostatics",
-            "Current Electricity",
-            "Magnetic Effects of Current",
-            "Electromagnetic Induction",
-            "Optics",
-            "Dual Nature",
-            "Atoms and Nuclei",
-            "Electronic Devices"
-        ],
+    let currentMode = "mock";
 
-        Chemistry: [
-            "Some Basic Concepts of Chemistry",
-            "Atomic Structure",
-            "Chemical Bonding",
-            "Thermodynamics",
-            "Equilibrium",
-            "Redox Reactions",
-            "Electrochemistry",
-            "Chemical Kinetics",
-            "Solutions",
-            "Periodic Classification",
-            "Coordination Compounds",
-            "Organic Chemistry",
-            "Hydrocarbons",
-            "Haloalkanes",
-            "Alcohols Phenols and Ethers",
-            "Aldehydes Ketones",
-            "Amines",
-            "Biomolecules"
-        ],
+    let currentSubject = "all";
 
-        Mathematics: [
-            "Sets Relations and Functions",
-            "Complex Numbers",
-            "Quadratic Equations",
-            "Sequences and Series",
-            "Permutations and Combinations",
-            "Binomial Theorem",
-            "Matrices and Determinants",
-            "Limits Continuity and Differentiability",
-            "Integral Calculus",
-            "Differential Equations",
-            "Coordinate Geometry",
-            "Vector Algebra",
-            "Three Dimensional Geometry",
-            "Statistics",
-            "Probability"
-        ],
+    let currentDifficulty = "mixed";
 
-        Biology: [
-            "The Living World",
-            "Biological Classification",
-            "Plant Kingdom",
-            "Animal Kingdom",
-            "Morphology of Flowering Plants",
-            "Anatomy of Flowering Plants",
-            "Cell Structure and Function",
-            "Biomolecules",
-            "Cell Cycle",
-            "Photosynthesis",
-            "Respiration in Plants",
-            "Plant Growth and Development",
-            "Human Physiology",
-            "Reproduction",
-            "Genetics",
-            "Evolution",
-            "Human Health and Disease",
-            "Biotechnology",
-            "Ecology",
-            "Biodiversity"
-        ],
+    let currentQuestionCount = 20;
 
-        Accounting: [
-            "Accounting Fundamentals",
-            "Journal",
-            "Ledger",
-            "Trial Balance",
-            "Financial Statements",
-            "Partnership",
-            "Company Accounts"
-        ],
+    let currentDuration = 60;
 
-        "Business Studies": [
-            "Nature of Business",
-            "Principles of Management",
-            "Business Environment",
-            "Planning",
-            "Organising",
-            "Staffing",
-            "Directing",
-            "Controlling",
-            "Marketing"
-        ],
+    let questions = [];
 
-        Economics: [
-            "Introduction to Economics",
-            "Demand and Supply",
-            "Production",
-            "Market Structures",
-            "National Income",
-            "Money and Banking",
-            "Public Finance"
-        ],
+    let currentQuestion = 0;
 
-        Law: [
-            "Indian Contract Act",
-            "Sale of Goods",
-            "Partnership",
-            "Companies",
-            "Negotiable Instruments"
-        ]
+    let answers = {};
 
-    };
+    let marked = {};
+
+    let timerInterval = null;
+
+    let remainingSeconds = 0;
+
+    let testStarted = false;
+
+    let testFinished = false;
 
 
     /* =====================================================
-       SAFE EXAM DETECTION
+       DOM
     ===================================================== */
 
-    function getCurrentExam() {
-
-        const value =
-            localStorage.getItem("masteryExam") ||
-            localStorage.getItem("selectedExam") ||
-            localStorage.getItem("exam") ||
-            "jee";
-
-        return EXAMS[value] ? value : "jee";
-    }
+    const $ = id =>
+        document.getElementById(id);
 
 
-    function syncExam() {
+    const testModal =
+        $("testModal");
 
-        P3.exam = getCurrentExam();
+    const closeTest =
+        $("closeTest");
 
-        const exam = EXAMS[P3.exam];
+    const testArea =
+        $("testArea");
 
-        if (testExam) {
-            testExam.textContent = exam.name;
-        }
-    }
+    const timer =
+        $("timer");
+
+    const testExam =
+        $("testExam");
+
+
+    const practiceContent =
+        $("practiceContent");
+
+
+    const startMockBtn =
+        $("startMockBtn");
+
+    const topicPracticeBtn =
+        $("topicPracticeBtn");
+
+    const pyqBtn =
+        $("pyqBtn");
+
+    const importantPracticeBtn =
+        $("importantPracticeBtn");
 
 
     /* =====================================================
-       INIT
+       UTILITIES
     ===================================================== */
 
-    function initPhase3() {
+    function escapeHTML(value) {
 
-        syncExam();
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
-        if (startMockBtn) {
-            startMockBtn.addEventListener(
-                "click",
-                openMockConfiguration
-            );
+    }
+
+
+    function showToast(message) {
+
+        const toast =
+            $("toast");
+
+        if (!toast) {
+            alert(message);
+            return;
         }
 
-        if (topicPracticeBtn) {
-            topicPracticeBtn.addEventListener(
-                "click",
-                openTopicPractice
-            );
-        }
+        toast.textContent =
+            message;
 
-        if (importantPracticeBtn) {
-            importantPracticeBtn.addEventListener(
-                "click",
-                openImportantPractice
-            );
-        }
+        toast.classList.add("show");
 
-        if (pyqBtn) {
-            pyqBtn.addEventListener(
-                "click",
-                showPYQUpdate
-            );
-        }
+        clearTimeout(
+            showToast.timeout
+        );
 
-        if (closeTest) {
-            closeTest.addEventListener(
-                "click",
-                closeTestModal
-            );
-        }
+        showToast.timeout =
+            setTimeout(() => {
 
-        document.addEventListener(
-            "click",
-            handleDynamicClick
+                toast.classList.remove(
+                    "show"
+                );
+
+            }, 3000);
+
+    }
+
+
+    function formatTime(seconds) {
+
+        const mins =
+            Math.floor(
+                seconds / 60
+            );
+
+        const secs =
+            seconds % 60;
+
+        return (
+            String(mins).padStart(2, "0") +
+            ":" +
+            String(secs).padStart(2, "0")
         );
 
     }
 
 
+    function getSelectedExam() {
+
+        /*
+         * First try the global app state if
+         * script.js created one.
+         */
+
+        const stored =
+            localStorage.getItem(
+                "mastrey_exam"
+            );
+
+        if (
+            stored &&
+            EXAMS[stored]
+        ) {
+            currentExam =
+                stored;
+        }
+
+        return currentExam;
+
+    }
+
+
+    function setExam(exam) {
+
+        if (!EXAMS[exam]) {
+            exam = "jee";
+        }
+
+        currentExam =
+            exam;
+
+        localStorage.setItem(
+            "mastrey_exam",
+            exam
+        );
+
+        const currentExamElement =
+            $("currentExam");
+
+        if (currentExamElement) {
+            currentExamElement.textContent =
+                EXAMS[exam].name;
+        }
+
+        updateSubjectOptions();
+
+    }
+
+
     /* =====================================================
-       OPEN MOCK CONFIGURATION
+       SUBJECT OPTIONS
     ===================================================== */
 
-    function openMockConfiguration() {
+    function updateSubjectOptions() {
 
-        syncExam();
+        const subjects =
+            EXAMS[currentExam].subjects;
 
-        const exam = EXAMS[P3.exam];
+        /*
+         * The configuration UI is created
+         * dynamically, so no HTML changes
+         * are required.
+         */
 
-        testModal.classList.remove("hidden");
+        const subjectSelect =
+            document.querySelector(
+                "#aiSubjectSelect"
+            );
 
-        testArea.innerHTML = `
+        if (!subjectSelect) {
+            return;
+        }
 
-            <div class="p3-test-intro">
+        subjectSelect.innerHTML =
+            `<option value="all">All Subjects</option>` +
+            subjects.map(
+                subject =>
+                    `<option value="${escapeHTML(subject)}">${escapeHTML(subject)}</option>`
+            ).join("");
 
-                <div class="p3-ai-orb">
-                    ✦
-                </div>
+    }
 
-                <h2>
-                    AI Mock Test
-                </h2>
 
-                <p>
-                    A fresh test generated for your
-                    selected exam. Questions are created
-                    for this test and are not taken from
-                    the PYQ database.
-                </p>
+    /* =====================================================
+       BUILD MOCK CONFIGURATION
+    ===================================================== */
 
-            </div>
+    function openMockConfiguration(
+        mode = "mock"
+    ) {
 
+        currentMode =
+            mode;
+
+        const exam =
+            EXAMS[currentExam];
+
+        if (!practiceContent) {
+            return;
+        }
+
+        practiceContent.innerHTML = `
 
             <div class="p3-config">
 
-                <div class="p3-config-section">
+                <div class="p3-config-header">
 
-                    <span class="p3-config-label">
-                        TEST TYPE
+                    <span class="p3-label">
+                        MASTREY AI
                     </span>
 
-                    <div class="p3-choice-grid">
+                    <h3>
+                        Generate Fresh Mock Test
+                    </h3>
 
-                        <button
-                            class="p3-choice active"
-                            data-config="mode"
-                            data-value="mock"
-                        >
-                            <strong>Full Mock</strong>
-                            <small>Complete exam simulation</small>
-                        </button>
+                    <p>
+                        Original AI-generated questions.
+                        No PYQs and no repeated questions.
+                    </p>
 
-                        <button
-                            class="p3-choice"
-                            data-config="mode"
-                            data-value="subject"
-                        >
-                            <strong>Subject Mock</strong>
-                            <small>Focus on one subject</small>
-                        </button>
+                </div>
+
+
+                <div class="p3-config-grid">
+
+
+                    <div class="p3-field">
+
+                        <label>
+                            Examination
+                        </label>
+
+                        <select id="aiExamSelect">
+
+                            <option value="jee"
+                                ${currentExam === "jee" ? "selected" : ""}>
+                                JEE
+                            </option>
+
+                            <option value="neet"
+                                ${currentExam === "neet" ? "selected" : ""}>
+                                NEET
+                            </option>
+
+                            <option value="ca"
+                                ${currentExam === "ca" ? "selected" : ""}>
+                                CA
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="p3-field">
+
+                        <label>
+                            Subject
+                        </label>
+
+                        <select id="aiSubjectSelect">
+
+                            <option value="all">
+                                All Subjects
+                            </option>
+
+                            ${exam.subjects.map(
+                                subject =>
+                                    `<option value="${escapeHTML(subject)}">
+                                        ${escapeHTML(subject)}
+                                    </option>`
+                            ).join("")}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="p3-field">
+
+                        <label>
+                            Difficulty
+                        </label>
+
+                        <select id="aiDifficultySelect">
+
+                            <option value="easy">
+                                Easy
+                            </option>
+
+                            <option value="medium"
+                                selected>
+                                Medium
+                            </option>
+
+                            <option value="hard">
+                                Hard
+                            </option>
+
+                            <option value="mixed">
+                                Mixed
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="p3-field">
+
+                        <label>
+                            Questions
+                        </label>
+
+                        <select id="aiQuestionCount">
+
+                            <option value="10">
+                                10 Questions
+                            </option>
+
+                            <option value="20"
+                                selected>
+                                20 Questions
+                            </option>
+
+                            <option value="30">
+                                30 Questions
+                            </option>
+
+                            <option value="40">
+                                40 Questions
+                            </option>
+
+                            <option value="50">
+                                50 Questions
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="p3-field">
+
+                        <label>
+                            Duration
+                        </label>
+
+                        <select id="aiDuration">
+
+                            <option value="15">
+                                15 Minutes
+                            </option>
+
+                            <option value="30">
+                                30 Minutes
+                            </option>
+
+                            <option value="60"
+                                selected>
+                                60 Minutes
+                            </option>
+
+                            <option value="90">
+                                90 Minutes
+                            </option>
+
+                            <option value="180">
+                                180 Minutes
+                            </option>
+
+                        </select>
 
                     </div>
 
@@ -417,361 +469,205 @@
 
 
                 <div
-                    class="p3-config-section"
-                    id="subjectConfig"
-                    style="display:none"
+                    id="aiExamInfo"
+                    class="p3-exam-info"
                 >
 
-                    <span class="p3-config-label">
-                        SUBJECT
+                    <strong>
+                        ${escapeHTML(exam.name)}
+                    </strong>
+
+                    <span>
+                        ${exam.subjects.map(
+                            escapeHTML
+                        ).join(" • ")}
                     </span>
-
-                    <div
-                        class="p3-choice-grid"
-                        id="subjectChoices"
-                    >
-                    </div>
-
-                </div>
-
-
-                <div class="p3-config-section">
-
-                    <span class="p3-config-label">
-                        DIFFICULTY
-                    </span>
-
-                    <div class="p3-choice-grid">
-
-                        <button
-                            class="p3-choice active"
-                            data-config="difficulty"
-                            data-value="mixed"
-                        >
-                            <strong>Mixed</strong>
-                            <small>Balanced difficulty</small>
-                        </button>
-
-                        <button
-                            class="p3-choice"
-                            data-config="difficulty"
-                            data-value="hard"
-                        >
-                            <strong>Hard</strong>
-                            <small>Advanced challenge</small>
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="p3-config-section">
-
-                    <span class="p3-config-label">
-                        QUESTIONS
-                    </span>
-
-                    <div class="p3-choice-grid">
-
-                        <button
-                            class="p3-choice active"
-                            data-config="count"
-                            data-value="20"
-                        >
-                            <strong>20 Questions</strong>
-                            <small>Quick mock</small>
-                        </button>
-
-                        <button
-                            class="p3-choice"
-                            data-config="count"
-                            data-value="50"
-                        >
-                            <strong>50 Questions</strong>
-                            <small>Long practice</small>
-                        </button>
-
-                    </div>
 
                 </div>
 
 
                 <button
-                    class="p3-submit-btn"
-                    id="generateAIMock"
+                    id="generateAITest"
+                    class="primary-btn p3-generate-btn"
                     type="button"
                 >
-                    ✦ GENERATE AI MOCK TEST
+
+                    ✦ GENERATE FRESH AI TEST
+
                 </button>
+
+
+                <div
+                    id="aiGenerationStatus"
+                    class="p3-generation-status"
+                ></div>
 
             </div>
         `;
 
-        buildSubjectChoices(exam.subjects);
+
+        const examSelect =
+            $("aiExamSelect");
+
+        examSelect.addEventListener(
+            "change",
+            () => {
+
+                setExam(
+                    examSelect.value
+                );
+
+                openMockConfiguration(
+                    currentMode
+                );
+
+            }
+        );
+
+
+        $("generateAITest")
+            .addEventListener(
+                "click",
+                generateAITest
+            );
+
     }
 
 
     /* =====================================================
-       SUBJECT CHOICES
+       GENERATE AI TEST
     ===================================================== */
 
-    function buildSubjectChoices(subjects) {
+    async function generateAITest() {
 
-        const box = $("subjectChoices");
+        const button =
+            $("generateAITest");
 
-        if (!box) return;
+        const status =
+            $("aiGenerationStatus");
 
-        box.innerHTML = subjects.map(
-            (subject, index) => `
 
-                <button
-                    class="p3-choice ${index === 0 ? "active" : ""}"
-                    data-config="subject"
-                    data-value="${escapeHTML(subject)}"
-                >
+        currentExam =
+            $("aiExamSelect").value;
 
+        currentSubject =
+            $("aiSubjectSelect").value;
+
+        currentDifficulty =
+            $("aiDifficultySelect").value;
+
+        currentQuestionCount =
+            Number(
+                $("aiQuestionCount").value
+            );
+
+        currentDuration =
+            Number(
+                $("aiDuration").value
+            );
+
+
+        setExam(
+            currentExam
+        );
+
+
+        button.disabled =
+            true;
+
+        button.innerHTML =
+            "✦ MASTREY AI IS CREATING...";
+
+
+        status.innerHTML = `
+            <div class="ai-loading">
+                <span class="ai-loader"></span>
+
+                <div>
                     <strong>
-                        ${escapeHTML(subject)}
+                        Generating fresh questions...
                     </strong>
 
                     <small>
-                        AI generated
+                        No PYQs • No duplicates •
+                        Exam-specific syllabus
                     </small>
-
-                </button>
-            `
-        ).join("");
-
-        P3.subject = subjects[0];
-    }
-
-
-    /* =====================================================
-       DYNAMIC CLICK HANDLER
-    ===================================================== */
-
-    function handleDynamicClick(event) {
-
-        const button =
-            event.target.closest(
-                "[data-config]"
-            );
-
-        if (button) {
-
-            const config =
-                button.dataset.config;
-
-            const value =
-                button.dataset.value;
-
-            document
-                .querySelectorAll(
-                    `[data-config="${config}"]`
-                )
-                .forEach(
-                    el => el.classList.remove("active")
-                );
-
-            button.classList.add("active");
-
-            if (config === "mode") {
-
-                P3.mode = value;
-
-                const subjectBox =
-                    $("subjectConfig");
-
-                if (subjectBox) {
-
-                    subjectBox.style.display =
-                        value === "subject"
-                            ? "block"
-                            : "none";
-
-                }
-
-            }
-
-            if (config === "subject") {
-                P3.subject = value;
-            }
-
-            if (config === "difficulty") {
-                P3.difficulty = value;
-            }
-
-            if (config === "count") {
-                P3.questionCount =
-                    Number(value);
-            }
-
-            return;
-        }
-
-
-        if (
-            event.target.closest(
-                "#generateAIMock"
-            )
-        ) {
-
-            generateAIMock();
-
-            return;
-        }
-
-
-        if (
-            event.target.closest(
-                "[data-answer]"
-            )
-        ) {
-
-            selectAnswer(
-                Number(
-                    event.target.closest(
-                        "[data-answer]"
-                    ).dataset.answer
-                )
-            );
-
-            return;
-        }
-
-
-        if (
-            event.target.closest(
-                "#nextQuestion"
-            )
-        ) {
-
-            nextQuestion();
-
-            return;
-        }
-
-
-        if (
-            event.target.closest(
-                "#previousQuestion"
-            )
-        ) {
-
-            previousQuestion();
-
-            return;
-        }
-
-
-        if (
-            event.target.closest(
-                "#submitTest"
-            )
-        ) {
-
-            submitTest();
-
-            return;
-        }
-
-
-        if (
-            event.target.closest(
-                "#restartAIMock"
-            )
-        ) {
-
-            openMockConfiguration();
-
-            return;
-        }
-
-    }
-
-
-    /* =====================================================
-       AI GENERATION
-    ===================================================== */
-
-    async function generateAIMock() {
-
-        const button =
-            $("generateAIMock");
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.textContent =
-                "✦ GENERATING FRESH QUESTIONS...";
-
-        }
-
-        showLoading();
-
-        const payload = {
-
-            exam: P3.exam,
-
-            mode: P3.mode,
-
-            subject:
-                P3.mode === "subject"
-                    ? P3.subject
-                    : "all",
-
-            allowedSubjects:
-                EXAMS[P3.exam].subjects,
-
-            difficulty: P3.difficulty,
-
-            questionCount:
-                P3.questionCount,
-
-            requirements: {
-
-                originalQuestions: true,
-
-                noPYQ: true,
-
-                noRepeatedQuestions: true,
-
-                detailedSolutions: true,
-
-                conceptExplanation: true,
-
-                examRelevant: true
-
-            }
-
-        };
+                </div>
+            </div>
+        `;
 
 
         try {
 
+            const payload = {
+
+                exam:
+                    currentExam,
+
+                mode:
+                    currentMode,
+
+                subject:
+                    currentSubject,
+
+                difficulty:
+                    currentDifficulty,
+
+                questionCount:
+                    currentQuestionCount
+
+            };
+
+
             const response =
                 await fetch(
-                    "/api/generate-test",
+                    API_URL,
                     {
-                        method: "POST",
+
+                        method:
+                            "POST",
 
                         headers: {
+
                             "Content-Type":
                                 "application/json"
+
                         },
 
                         body:
-                            JSON.stringify(payload)
+                            JSON.stringify(
+                                payload
+                            )
+
                     }
                 );
 
 
             if (!response.ok) {
+
+                let serverMessage =
+                    "AI server error.";
+
+                try {
+
+                    const errorData =
+                        await response.json();
+
+                    if (
+                        errorData &&
+                        errorData.error
+                    ) {
+                        serverMessage =
+                            errorData.error;
+                    }
+
+                }
+                catch (_) {}
+
                 throw new Error(
-                    "AI server unavailable"
+                    serverMessage
                 );
+
             }
 
 
@@ -781,6 +677,18 @@
 
             if (
                 !data ||
+                data.success !== true
+            ) {
+
+                throw new Error(
+                    data?.error ||
+                    "AI could not generate the test."
+                );
+
+            }
+
+
+            if (
                 !Array.isArray(
                     data.questions
                 ) ||
@@ -788,42 +696,132 @@
             ) {
 
                 throw new Error(
-                    "AI returned no questions"
+                    "No questions were returned."
                 );
 
             }
 
 
-            P3.questions =
-                normalizeQuestions(
-                    data.questions
+            /*
+             * Extra frontend validation.
+             */
+
+            const allowed =
+                EXAMS[currentExam]
+                    .subjects;
+
+
+            questions =
+                data.questions.filter(
+                    question => {
+
+                        if (
+                            !allowed.includes(
+                                question.subject
+                            )
+                        ) {
+                            return false;
+                        }
+
+                        if (
+                            currentSubject !== "all" &&
+                            question.subject !==
+                                currentSubject
+                        ) {
+                            return false;
+                        }
+
+                        return (
+                            Array.isArray(
+                                question.options
+                            ) &&
+                            question.options.length ===
+                                4
+                        );
+
+                    }
                 );
 
-            P3.generatedByAI = true;
 
-            startGeneratedTest();
+            if (
+                questions.length === 0
+            ) {
+
+                throw new Error(
+                    "Returned questions did not match the selected exam."
+                );
+
+            }
+
+
+            /*
+             * Start test.
+             */
+
+            currentQuestion =
+                0;
+
+            answers = {};
+
+            marked = {};
+
+            testStarted =
+                true;
+
+            testFinished =
+                false;
+
+            remainingSeconds =
+                currentDuration * 60;
+
+
+            openTestModal();
+
+            renderQuestion();
+
+            startTimer();
+
 
         }
         catch (error) {
 
             console.error(
-                "AI Mock Error:",
+                "AI MOCK ERROR:",
                 error
             );
 
-            showAIConnectionMessage();
+
+            status.innerHTML = `
+
+                <div class="p3-error">
+
+                    <strong>
+                        ⚠️ Unable to generate test
+                    </strong>
+
+                    <p>
+                        ${escapeHTML(
+                            error.message
+                        )}
+                    </p>
+
+                    <small>
+                        Check that your AI backend
+                        is deployed and configured.
+                    </small>
+
+                </div>
+            `;
+
 
         }
         finally {
 
-            if (button) {
+            button.disabled =
+                false;
 
-                button.disabled = false;
-
-                button.textContent =
-                    "✦ GENERATE AI MOCK TEST";
-
-            }
+            button.innerHTML =
+                "✦ GENERATE FRESH AI TEST";
 
         }
 
@@ -831,253 +829,56 @@
 
 
     /* =====================================================
-       LOADING
+       TEST MODAL
     ===================================================== */
 
-    function showLoading() {
+    function openTestModal() {
 
-        testArea.innerHTML = `
+        if (!testModal) {
+            return;
+        }
 
-            <div class="p3-test-intro">
+        testModal.classList.remove(
+            "hidden"
+        );
 
-                <div class="p3-ai-orb">
-                    ✦
-                </div>
+        testModal.classList.add(
+            "active"
+        );
 
-                <h2>
-                    Building your test...
-                </h2>
+        if (testExam) {
+            testExam.textContent =
+                EXAMS[currentExam].name;
+        }
 
-                <p>
-                    MASTREY AI is creating fresh
-                    ${P3.exam.toUpperCase()} questions.
-                </p>
-
-                <p>
-                    PYQs are not being used.
-                </p>
-
-            </div>
-
-        `;
-    }
-
-
-    function showAIConnectionMessage() {
-
-        testArea.innerHTML = `
-
-            <div class="p3-test-intro">
-
-                <div class="p3-ai-orb">
-                    ⚡
-                </div>
-
-                <h2>
-                    AI Engine Not Connected
-                </h2>
-
-                <p>
-                    The Phase 3 interface is ready,
-                    but the secure AI backend
-                    is not connected yet.
-                </p>
-
-                <p>
-                    We will connect the AI backend
-                    separately. Your API key should
-                    never be placed inside this file.
-                </p>
-
-                <button
-                    class="p3-submit-btn"
-                    id="restartAIMock"
-                    type="button"
-                >
-                    ← BACK TO AI MOCK SETUP
-                </button>
-
-            </div>
-
-        `;
-    }
-
-
-    /* =====================================================
-       NORMALIZE QUESTIONS
-    ===================================================== */
-
-    function normalizeQuestions(raw) {
-
-        return raw.map(
-            (q, index) => {
-
-                let options =
-                    Array.isArray(q.options)
-                        ? q.options
-                        : [];
-
-                options =
-                    options.slice(0, 4);
-
-                while (
-                    options.length < 4
-                ) {
-                    options.push(
-                        "Option unavailable"
-                    );
-                }
-
-                let answer =
-                    Number(q.answer);
-
-                if (
-                    Number.isNaN(answer) ||
-                    answer < 0 ||
-                    answer > 3
-                ) {
-                    answer = 0;
-                }
-
-                return {
-
-                    id:
-                        q.id ||
-                        `ai-${Date.now()}-${index}`,
-
-                    subject:
-                        q.subject ||
-                        "General",
-
-                    chapter:
-                        q.chapter ||
-                        "General",
-
-                    question:
-                        q.question ||
-                        "Question unavailable",
-
-                    options,
-
-                    answer,
-
-                    explanation:
-                        q.explanation ||
-                        "Detailed explanation will be provided by the AI engine.",
-
-                    concept:
-                        q.concept ||
-                        "Concept review"
-
-                };
-
-            }
+        document.body.classList.add(
+            "test-open"
         );
 
     }
 
 
-    /* =====================================================
-       START TEST
-    ===================================================== */
-
-    function startGeneratedTest() {
-
-        P3.answers =
-            new Array(
-                P3.questions.length
-            ).fill(null);
-
-        P3.currentQuestion = 0;
-
-        P3.remainingSeconds =
-            EXAMS[P3.exam].duration;
-
-        P3.testStarted = true;
-
-        startTimer();
-
-        renderQuestion();
-
-    }
-
-
-    /* =====================================================
-       TIMER
-    ===================================================== */
-
-    function startTimer() {
+    function closeTestModal() {
 
         stopTimer();
 
-        updateTimer();
+        testStarted =
+            false;
 
-        P3.timerInterval =
-            setInterval(
-                () => {
+        if (testModal) {
 
-                    if (
-                        P3.remainingSeconds <= 0
-                    ) {
-
-                        stopTimer();
-
-                        submitTest(true);
-
-                        return;
-
-                    }
-
-                    P3.remainingSeconds--;
-
-                    updateTimer();
-
-                },
-                1000
+            testModal.classList.add(
+                "hidden"
             );
 
-    }
-
-
-    function stopTimer() {
-
-        if (P3.timerInterval) {
-
-            clearInterval(
-                P3.timerInterval
+            testModal.classList.remove(
+                "active"
             );
-
-            P3.timerInterval = null;
 
         }
 
-    }
-
-
-    function updateTimer() {
-
-        if (!timer) return;
-
-        const minutes =
-            Math.floor(
-                P3.remainingSeconds / 60
-            );
-
-        const seconds =
-            P3.remainingSeconds % 60;
-
-        timer.textContent =
-            `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
-
-        timer.classList.toggle(
-            "warning",
-            P3.remainingSeconds <= 300 &&
-            P3.remainingSeconds > 60
-        );
-
-        timer.classList.toggle(
-            "danger",
-            P3.remainingSeconds <= 60
+        document.body.classList.remove(
+            "test-open"
         );
 
     }
@@ -1089,80 +890,217 @@
 
     function renderQuestion() {
 
+        if (
+            !testArea ||
+            !questions.length
+        ) {
+            return;
+        }
+
+
         const q =
-            P3.questions[
-                P3.currentQuestion
-            ];
+            questions[currentQuestion];
 
-        if (!q) return;
 
-        const total =
-            P3.questions.length;
+        const selectedAnswer =
+            answers[currentQuestion];
 
-        const number =
-            P3.currentQuestion + 1;
 
-        const progress =
-            (number / total) * 100;
+        const markedQuestion =
+            marked[currentQuestion] === true;
+
 
         testArea.innerHTML = `
 
-            <div class="p3-question-wrap">
+            <div class="p3-test-container">
 
-                <div class="p3-progress-row">
 
-                    <span class="p3-progress-text">
-                        Question ${number} / ${total}
+                <div class="p3-progress-header">
+
+                    <div>
+
+                        <span>
+                            QUESTION
+                        </span>
+
+                        <strong>
+                            ${currentQuestion + 1}
+                            /
+                            ${questions.length}
+                        </strong>
+
+                    </div>
+
+
+                    <button
+                        id="markQuestion"
+                        class="p3-mark-btn ${markedQuestion ? "marked" : ""}"
+                        type="button"
+                    >
+
+                        ${markedQuestion ? "★ Marked" : "☆ Mark"}
+
+                    </button>
+
+                </div>
+
+
+                <div class="p3-progress-bar">
+
+                    <span
+                        style="width:${(
+                            ((currentQuestion + 1) /
+                            questions.length) *
+                            100
+                        ).toFixed(1)}%"
+                    ></span>
+
+                </div>
+
+
+                <div class="p3-question-meta">
+
+                    <span>
+                        ${escapeHTML(q.subject)}
                     </span>
 
-                    <div class="p3-progress-track">
-                        <div
-                            class="p3-progress-fill"
-                            style="width:${progress}%"
-                        ></div>
-                    </div>
+                    <span>
+                        ${escapeHTML(q.chapter)}
+                    </span>
 
                 </div>
 
 
                 <div class="p3-question-card">
 
-                    <span class="p3-subject-badge">
-                        ${escapeHTML(q.subject)}
-                    </span>
-
-                    <div class="p3-question">
+                    <h2>
                         ${escapeHTML(q.question)}
-                    </div>
+                    </h2>
+
+                </div>
 
 
-                    <div class="p3-options">
+                <div class="p3-options">
 
-                        ${q.options.map(
-                            (option, index) => `
+                    ${q.options.map(
+                        (option, index) => {
+
+                            const isSelected =
+                                selectedAnswer ===
+                                index;
+
+                            return `
 
                                 <button
                                     class="p3-option ${
-                                        P3.answers[
-                                            P3.currentQuestion
-                                        ] === index
+                                        isSelected
                                             ? "selected"
                                             : ""
                                     }"
-                                    data-answer="${index}"
+                                    data-option="${index}"
                                     type="button"
                                 >
 
-                                    <span class="p3-option-letter">
+                                    <span class="option-letter">
                                         ${String.fromCharCode(
                                             65 + index
                                         )}
                                     </span>
 
-                                    <span>
+                                    <span class="option-text">
                                         ${escapeHTML(option)}
                                     </span>
 
+                                </button>
+
+                            `;
+
+                        }
+                    ).join("")}
+
+                </div>
+
+
+                <div class="p3-navigation">
+
+                    <button
+                        id="prevQuestion"
+                        class="secondary-btn"
+                        type="button"
+                        ${currentQuestion === 0 ? "disabled" : ""}
+                    >
+                        ← Previous
+                    </button>
+
+
+                    ${
+                        currentQuestion <
+                        questions.length - 1
+
+                        ?
+
+                        `
+                        <button
+                            id="nextQuestion"
+                            class="primary-btn"
+                            type="button"
+                        >
+                            Next →
+                        </button>
+                        `
+
+                        :
+
+                        `
+                        <button
+                            id="submitTest"
+                            class="primary-btn p3-submit-btn"
+                            type="button"
+                        >
+                            Submit Test ✓
+                        </button>
+                        `
+                    }
+
+                </div>
+
+
+                <div class="p3-question-map">
+
+                    <div class="question-map-title">
+                        QUESTION MAP
+                    </div>
+
+                    <div class="question-map-grid">
+
+                        ${questions.map(
+                            (_, index) => `
+
+                                <button
+                                    class="
+                                        question-map-btn
+                                        ${
+                                            answers[index] !==
+                                            undefined
+                                                ? "answered"
+                                                : ""
+                                        }
+                                        ${
+                                            marked[index]
+                                                ? "marked"
+                                                : ""
+                                        }
+                                        ${
+                                            index ===
+                                            currentQuestion
+                                                ? "current"
+                                                : ""
+                                        }
+                                    "
+                                    data-question-index="${index}"
+                                    type="button"
+                                >
+                                    ${index + 1}
                                 </button>
 
                             `
@@ -1172,178 +1110,260 @@
 
                 </div>
 
-
-                <div class="p3-test-controls">
-
-                    <button
-                        id="previousQuestion"
-                        class="p3-control-btn"
-                        type="button"
-                        ${
-                            P3.currentQuestion === 0
-                                ? "disabled"
-                                : ""
-                        }
-                    >
-                        ← Previous
-                    </button>
-
-
-                    <button
-                        id="nextQuestion"
-                        class="p3-control-btn primary"
-                        type="button"
-                    >
-                        ${
-                            P3.currentQuestion ===
-                            total - 1
-                                ? "Review"
-                                : "Next →"
-                        }
-                    </button>
-
-                </div>
-
-
-                ${
-                    P3.currentQuestion ===
-                    total - 1
-                        ? `
-                            <button
-                                id="submitTest"
-                                class="p3-submit-btn"
-                                type="button"
-                            >
-                                SUBMIT TEST
-                            </button>
-                          `
-                        : ""
-                }
-
             </div>
-
         `;
 
-    }
 
-
-    /* =====================================================
-       ANSWER
-    ===================================================== */
-
-    function selectAnswer(index) {
-
-        P3.answers[
-            P3.currentQuestion
-        ] = index;
-
-        renderQuestion();
+        bindQuestionEvents();
 
     }
 
 
     /* =====================================================
-       NAVIGATION
+       QUESTION EVENTS
     ===================================================== */
 
-    function nextQuestion() {
+    function bindQuestionEvents() {
 
-        if (
-            P3.currentQuestion <
-            P3.questions.length - 1
-        ) {
+        document
+            .querySelectorAll(
+                ".p3-option"
+            )
+            .forEach(
+                button => {
 
-            P3.currentQuestion++;
+                    button.addEventListener(
+                        "click",
+                        () => {
 
-            renderQuestion();
+                            const index =
+                                Number(
+                                    button.dataset.option
+                                );
 
-        }
+                            answers[
+                                currentQuestion
+                            ] = index;
 
-    }
+                            renderQuestion();
 
-
-    function previousQuestion() {
-
-        if (
-            P3.currentQuestion > 0
-        ) {
-
-            P3.currentQuestion--;
-
-            renderQuestion();
-
-        }
-
-    }
-
-
-    /* =====================================================
-       SUBMIT
-    ===================================================== */
-
-    function submitTest(autoSubmit = false) {
-
-        if (!P3.questions.length) return;
-
-        if (!autoSubmit) {
-
-            const unanswered =
-                P3.answers.filter(
-                    answer => answer === null
-                ).length;
-
-            if (unanswered > 0) {
-
-                const proceed =
-                    window.confirm(
-                        `${unanswered} question(s) are unanswered.\n\nSubmit anyway?`
+                        }
                     );
 
-                if (!proceed) {
-                    return;
                 }
+            );
 
-            }
+
+        const markButton =
+            $("markQuestion");
+
+        if (markButton) {
+
+            markButton.addEventListener(
+                "click",
+                () => {
+
+                    marked[
+                        currentQuestion
+                    ] =
+                        !marked[
+                            currentQuestion
+                        ];
+
+                    renderQuestion();
+
+                }
+            );
 
         }
+
+
+        const prev =
+            $("prevQuestion");
+
+        if (prev) {
+
+            prev.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        currentQuestion > 0
+                    ) {
+
+                        currentQuestion--;
+
+                        renderQuestion();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        const next =
+            $("nextQuestion");
+
+        if (next) {
+
+            next.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        currentQuestion <
+                        questions.length - 1
+                    ) {
+
+                        currentQuestion++;
+
+                        renderQuestion();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        const submit =
+            $("submitTest");
+
+        if (submit) {
+
+            submit.addEventListener(
+                "click",
+                confirmSubmit
+            );
+
+        }
+
+
+        document
+            .querySelectorAll(
+                ".question-map-btn"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            currentQuestion =
+                                Number(
+                                    button.dataset
+                                        .questionIndex
+                                );
+
+                            renderQuestion();
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* =====================================================
+       SUBMIT CONFIRMATION
+    ===================================================== */
+
+    function confirmSubmit() {
+
+        const answered =
+            Object.keys(
+                answers
+            ).length;
+
+
+        const unanswered =
+            questions.length -
+            answered;
+
+
+        const message =
+            unanswered > 0
+
+                ? `You have ${unanswered} unanswered question(s). Submit anyway?`
+
+                : "Submit your test now?";
+
+
+        if (
+            window.confirm(
+                message
+            )
+        ) {
+
+            finishTest();
+
+        }
+
+    }
+
+
+    /* =====================================================
+       FINISH TEST
+    ===================================================== */
+
+    function finishTest() {
+
+        if (
+            testFinished
+        ) {
+            return;
+        }
+
+
+        testFinished =
+            true;
+
+        testStarted =
+            false;
 
         stopTimer();
 
-        P3.testStarted = false;
-
-        const result =
-            calculateResult();
-
-        renderResults(result);
+        renderResults();
 
     }
 
 
     /* =====================================================
-       RESULT CALCULATION
+       CALCULATE RESULTS
     ===================================================== */
 
-    function calculateResult() {
+    function calculateResults() {
 
-        let correct = 0;
+        let correct =
+            0;
 
-        let wrong = 0;
+        let wrong =
+            0;
 
-        let unanswered = 0;
+        let skipped =
+            0;
 
-        P3.questions.forEach(
-            (q, index) => {
 
-                const selected =
-                    P3.answers[index];
+        questions.forEach(
+            (question, index) => {
 
-                if (selected === null) {
+                if (
+                    answers[index] ===
+                    undefined
+                ) {
 
-                    unanswered++;
+                    skipped++;
 
                 }
                 else if (
-                    selected === q.answer
+                    answers[index] ===
+                    question.answer
                 ) {
 
                     correct++;
@@ -1360,29 +1380,25 @@
 
 
         const total =
-            P3.questions.length;
+            questions.length;
 
-        const accuracy =
-            correct + wrong === 0
-                ? 0
-                : Math.round(
-                    correct /
-                    (correct + wrong) *
+
+        const percentage =
+            total
+                ? (
+                    (correct / total) *
                     100
-                );
+                ).toFixed(1)
+                : "0.0";
 
 
         return {
 
-            total,
-
             correct,
-
             wrong,
-
-            unanswered,
-
-            accuracy
+            skipped,
+            total,
+            percentage
 
         };
 
@@ -1393,266 +1409,127 @@
        RESULTS
     ===================================================== */
 
-    function renderResults(result) {
+    function renderResults() {
+
+        const result =
+            calculateResults();
+
+
+        const score =
+            result.correct;
+
+
+        const attempted =
+            result.correct +
+            result.wrong;
+
 
         testArea.innerHTML = `
 
-            <div class="p3-result">
+            <div class="p3-results">
 
-                <div class="p3-score-card">
+                <div class="p3-result-hero">
 
-                    <div class="p3-score-circle">
-
-                        <strong>
-                            ${result.correct}/${result.total}
-                        </strong>
-
+                    <div class="p3-result-icon">
+                        ✦
                     </div>
+
+                    <span>
+                        ${escapeHTML(
+                            EXAMS[currentExam].name
+                        )}
+                        • AI MOCK TEST
+                    </span>
 
                     <h2>
                         Test Completed
                     </h2>
 
                     <p>
-                        ${
-                            result.accuracy >= 80
-                                ? "Excellent performance."
-                                : result.accuracy >= 60
-                                    ? "Good work. Keep improving."
-                                    : "Keep practicing. Your next attempt can be stronger."
-                        }
-                    </p>
-
-
-                    <div class="p3-result-stats">
-
-                        <div class="p3-result-stat">
-                            <strong>
-                                ${result.correct}
-                            </strong>
-                            <small>Correct</small>
-                        </div>
-
-                        <div class="p3-result-stat">
-                            <strong>
-                                ${result.wrong}
-                            </strong>
-                            <small>Wrong</small>
-                        </div>
-
-                        <div class="p3-result-stat">
-                            <strong>
-                                ${result.unanswered}
-                            </strong>
-                            <small>Skipped</small>
-                        </div>
-
-                        <div class="p3-result-stat">
-                            <strong>
-                                ${result.accuracy}%
-                            </strong>
-                            <small>Accuracy</small>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="p3-ai-analysis">
-
-                    <h3>
-                        ✦ AI Performance Analysis
-                    </h3>
-
-                    <p>
-                        Your detailed AI analysis will
-                        identify weak chapters, common
-                        mistakes and the concepts you
-                        should revise next.
+                        Your performance summary
                     </p>
 
                 </div>
 
 
-                <div class="p3-solutions">
+                <div class="p3-score-circle">
 
-                    <h3>
-                        Detailed Solutions
-                    </h3>
+                    <strong>
+                        ${score}
+                    </strong>
 
-                    ${renderSolutions()}
+                    <span>
+                        / ${result.total}
+                    </span>
 
                 </div>
 
 
-                <button
-                    id="restartAIMock"
-                    class="p3-submit-btn"
-                    type="button"
-                >
-                    ✦ TAKE ANOTHER AI MOCK
-                </button>
+                <div class="p3-result-percent">
 
-            </div>
+                    ${result.percentage}%
 
-        `;
-
-    }
+                </div>
 
 
-    /* =====================================================
-       SOLUTIONS
-    ===================================================== */
+                <div class="p3-result-stats">
 
-    function renderSolutions() {
-
-        return P3.questions.map(
-            (q, index) => {
-
-                const selected =
-                    P3.answers[index];
-
-                const isCorrect =
-                    selected === q.answer;
-
-                return `
-
-                    <div class="p3-solution">
-
-                        <h4>
-                            Q${index + 1}.
-                            ${escapeHTML(q.question)}
-                        </h4>
-
-                        <div class="answer">
-
-                            Correct Answer:
-                            ${String.fromCharCode(
-                                65 + q.answer
-                            )}
-
-                            —
-                            ${escapeHTML(
-                                q.options[q.answer]
-                            )}
-
-                        </div>
-
-
-                        ${
-                            selected !== null
-                                ? `
-                                    <div class="p3-explanation">
-
-                                        Your answer:
-                                        <strong>
-                                            ${String.fromCharCode(
-                                                65 + selected
-                                            )}
-                                        </strong>
-
-                                        —
-                                        ${
-                                            isCorrect
-                                                ? "Correct"
-                                                : "Incorrect"
-                                        }
-
-                                    </div>
-                                  `
-                                : `
-                                    <div class="p3-explanation">
-                                        Not attempted.
-                                    </div>
-                                  `
-                        }
-
-
-                        <div class="p3-explanation">
-
-                            <strong>
-                                Concept:
-                            </strong>
-
-                            ${escapeHTML(q.concept)}
-
-                        </div>
-
-
-                        <div class="p3-explanation">
-
-                            <strong>
-                                Detailed Solution:
-                            </strong>
-
-                            ${escapeHTML(
-                                q.explanation
-                            )}
-
-                        </div>
-
+                    <div>
+                        <strong>
+                            ${result.correct}
+                        </strong>
+                        <span>
+                            Correct
+                        </span>
                     </div>
 
-                `;
+                    <div>
+                        <strong>
+                            ${result.wrong}
+                        </strong>
+                        <span>
+                            Wrong
+                        </span>
+                    </div>
 
-            }
-        ).join("");
+                    <div>
+                        <strong>
+                            ${result.skipped}
+                        </strong>
+                        <span>
+                            Skipped
+                        </span>
+                    </div>
 
-    }
+                    <div>
+                        <strong>
+                            ${attempted}
+                        </strong>
+                        <span>
+                            Attempted
+                        </span>
+                    </div>
 
-
-    /* =====================================================
-       TOPIC PRACTICE
-    ===================================================== */
-
-    function openTopicPractice() {
-
-        syncExam();
-
-        const subjects =
-            EXAMS[P3.exam].subjects;
-
-        practiceContent.innerHTML = `
-
-            <div class="p3-panel">
-
-                <div class="p3-panel-title">
-                    🎯 AI Topic Practice
-                </div>
-
-                <div class="p3-panel-subtitle">
-                    Choose a subject. The AI engine will
-                    generate fresh topic-based questions.
                 </div>
 
 
-                <div
-                    class="p3-choice-grid"
-                    style="margin-top:18px"
-                >
+                <div class="p3-result-actions">
 
-                    ${subjects.map(
-                        subject => `
+                    <button
+                        id="viewSolutions"
+                        class="primary-btn"
+                        type="button"
+                    >
+                        📖 Detailed Solutions
+                    </button>
 
-                            <button
-                                class="p3-choice"
-                                data-topic-subject="${escapeHTML(subject)}"
-                                type="button"
-                            >
-
-                                <strong>
-                                    ${escapeHTML(subject)}
-                                </strong>
-
-                                <small>
-                                    Topic practice
-                                </small>
-
-                            </button>
-
-                        `
-                    ).join("")}
+                    <button
+                        id="closeResult"
+                        class="secondary-btn"
+                        type="button"
+                    >
+                        Back to Practice
+                    </button>
 
                 </div>
 
@@ -1660,77 +1537,29 @@
 
         `;
 
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth"
-        });
 
-    }
+        const viewSolutions =
+            $("viewSolutions");
 
+        if (viewSolutions) {
 
-    /* =====================================================
-       IMPORTANT PRACTICE
-    ===================================================== */
+            viewSolutions.addEventListener(
+                "click",
+                renderSolutions
+            );
 
-    function openImportantPractice() {
-
-        syncExam();
-
-        practiceContent.innerHTML = `
-
-            <div class="p3-panel">
-
-                <div class="p3-panel-title">
-                    🔥 Important Practice
-                </div>
-
-                <div class="p3-panel-subtitle">
-
-                    AI-generated questions focused on
-                    high-priority concepts.
-
-                    <br><br>
-
-                    ${
-                        EXAMS[P3.exam]
-                            .subjects
-                            .join(" • ")
-                    }
-
-                </div>
+        }
 
 
-                <button
-                    id="generateImportant"
-                    class="p3-submit-btn"
-                    type="button"
-                >
-                    ✦ GENERATE IMPORTANT QUESTIONS
-                </button>
+        const closeResult =
+            $("closeResult");
 
-            </div>
+        if (closeResult) {
 
-        `;
-
-        const btn =
-            $("generateImportant");
-
-        if (btn) {
-
-            btn.onclick =
-                () => {
-
-                    P3.mode = "important";
-
-                    P3.subject = "all";
-
-                    P3.difficulty = "mixed";
-
-                    P3.questionCount = 20;
-
-                    generateAIMock();
-
-                };
+            closeResult.addEventListener(
+                "click",
+                closeTestModal
+            );
 
         }
 
@@ -1738,36 +1567,405 @@
 
 
     /* =====================================================
-       PYQ — FUTURE UPDATE ONLY
+       DETAILED SOLUTIONS
     ===================================================== */
 
-    function showPYQUpdate() {
+    function renderSolutions() {
 
-        practiceContent.innerHTML = `
+        testArea.innerHTML = `
 
-            <div class="p3-panel">
+            <div class="p3-solutions">
 
-                <div class="p3-panel-title">
-                    📄 PYQ Engine
+                <div class="p3-solutions-header">
+
+                    <span>
+                        MASTREY AI
+                    </span>
+
+                    <h2>
+                        Detailed Solutions
+                    </h2>
+
+                    <p>
+                        Understand every question,
+                        answer and concept.
+                    </p>
+
                 </div>
 
-                <div class="p3-panel-subtitle">
 
-                    Real previous-year questions will
-                    be added in a future MASTREY PRO
-                    content update.
+                ${questions.map(
+                    (question, index) => {
 
-                    <br><br>
+                        const userAnswer =
+                            answers[index];
 
-                    The AI Mock Engine does <strong>
-                    NOT
-                    </strong> use PYQs.
+                        const isCorrect =
+                            userAnswer ===
+                            question.answer;
 
-                </div>
+                        const skipped =
+                            userAnswer ===
+                            undefined;
+
+
+                        return `
+
+                            <article
+                                class="p3-solution-card"
+                            >
+
+                                <div class="solution-top">
+
+                                    <span>
+                                        Q${index + 1}
+                                    </span>
+
+                                    <span>
+                                        ${escapeHTML(
+                                            question.subject
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        ${escapeHTML(
+                                            question.chapter
+                                        )}
+                                    </span>
+
+                                    <strong class="${
+                                        skipped
+                                            ? "skipped"
+                                            : isCorrect
+                                                ? "correct"
+                                                : "wrong"
+                                    }">
+
+                                        ${
+                                            skipped
+                                                ? "SKIPPED"
+                                                : isCorrect
+                                                    ? "CORRECT"
+                                                    : "WRONG"
+                                        }
+
+                                    </strong>
+
+                                </div>
+
+
+                                <h3>
+                                    ${escapeHTML(
+                                        question.question
+                                    )}
+                                </h3>
+
+
+                                <div class="solution-options">
+
+                                    ${question.options.map(
+                                        (option, optionIndex) => {
+
+                                            const correct =
+                                                optionIndex ===
+                                                question.answer;
+
+                                            const user =
+                                                optionIndex ===
+                                                userAnswer;
+
+                                            let className =
+                                                "";
+
+                                            if (correct) {
+                                                className =
+                                                    "solution-correct";
+                                            }
+                                            else if (user) {
+                                                className =
+                                                    "solution-wrong";
+                                            }
+
+                                            return `
+
+                                                <div
+                                                    class="
+                                                        solution-option
+                                                        ${className}
+                                                    "
+                                                >
+
+                                                    <b>
+                                                        ${String.fromCharCode(
+                                                            65 +
+                                                            optionIndex
+                                                        )}
+                                                    </b>
+
+                                                    <span>
+                                                        ${escapeHTML(
+                                                            option
+                                                        )}
+                                                    </span>
+
+                                                    ${
+                                                        correct
+                                                            ? `<i>✓ Correct</i>`
+                                                            : ""
+                                                    }
+
+                                                    ${
+                                                        user &&
+                                                        !correct
+                                                            ? `<i>✕ Your answer</i>`
+                                                            : ""
+                                                    }
+
+                                                </div>
+
+                                            `;
+
+                                        }
+                                    ).join("")}
+
+                                </div>
+
+
+                                <div class="p3-concept-box">
+
+                                    <strong>
+                                        🧠 Concept
+                                    </strong>
+
+                                    <p>
+                                        ${escapeHTML(
+                                            question.concept
+                                        )}
+                                    </p>
+
+                                </div>
+
+
+                                <div class="p3-explanation-box">
+
+                                    <strong>
+                                        📖 Detailed Solution
+                                    </strong>
+
+                                    <p>
+                                        ${escapeHTML(
+                                            question.explanation
+                                        )}
+                                    </p>
+
+                                </div>
+
+                            </article>
+
+                        `;
+
+                    }
+                ).join("")}
+
+
+                <button
+                    id="solutionsDone"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Finish Review
+                </button>
 
             </div>
 
         `;
+
+
+        const done =
+            $("solutionsDone");
+
+        if (done) {
+
+            done.addEventListener(
+                "click",
+                closeTestModal
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       TIMER
+    ===================================================== */
+
+    function startTimer() {
+
+        stopTimer();
+
+
+        updateTimerDisplay();
+
+
+        timerInterval =
+            setInterval(
+                () => {
+
+                    remainingSeconds--;
+
+
+                    updateTimerDisplay();
+
+
+                    if (
+                        remainingSeconds <=
+                        0
+                    ) {
+
+                        stopTimer();
+
+                        if (
+                            !testFinished
+                        ) {
+
+                            alert(
+                                "Time is up. Your test will be submitted."
+                            );
+
+                            finishTest();
+
+                        }
+
+                    }
+
+                },
+                1000
+            );
+
+    }
+
+
+    function stopTimer() {
+
+        if (
+            timerInterval
+        ) {
+
+            clearInterval(
+                timerInterval
+            );
+
+            timerInterval =
+                null;
+
+        }
+
+    }
+
+
+    function updateTimerDisplay() {
+
+        if (!timer) {
+            return;
+        }
+
+        timer.textContent =
+            formatTime(
+                Math.max(
+                    0,
+                    remainingSeconds
+                )
+            );
+
+
+        timer.classList.toggle(
+            "danger",
+            remainingSeconds <=
+            300
+        );
+
+    }
+
+
+    /* =====================================================
+       PRACTICE BUTTONS
+    ===================================================== */
+
+    if (
+        startMockBtn
+    ) {
+
+        startMockBtn.addEventListener(
+            "click",
+            () => {
+
+                openMockConfiguration(
+                    "mock"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (
+        topicPracticeBtn
+    ) {
+
+        topicPracticeBtn.addEventListener(
+            "click",
+            () => {
+
+                openMockConfiguration(
+                    "topic"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (
+        importantPracticeBtn
+    ) {
+
+        importantPracticeBtn.addEventListener(
+            "click",
+            () => {
+
+                openMockConfiguration(
+                    "important"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       PYQ
+       PYQ ENGINE IS INTENTIONALLY DISABLED
+       FOR NOW.
+    ===================================================== */
+
+    if (
+        pyqBtn
+    ) {
+
+        pyqBtn.addEventListener(
+            "click",
+            () => {
+
+                showToast(
+                    "PYQ Engine will be added in a future update."
+                );
+
+            }
+        );
 
     }
 
@@ -1776,91 +1974,156 @@
        CLOSE TEST
     ===================================================== */
 
-    function closeTestModal() {
+    if (
+        closeTest
+    ) {
 
-        if (
-            P3.testStarted
-        ) {
+        closeTest.addEventListener(
+            "click",
+            () => {
 
-            const leave =
-                window.confirm(
-                    "Your current test will be stopped. Leave the test?"
-                );
+                if (
+                    testStarted &&
+                    !testFinished
+                ) {
 
-            if (!leave) {
-                return;
+                    const leave =
+                        window.confirm(
+                            "Exit the test? Your current progress will be lost."
+                        );
+
+                    if (!leave) {
+                        return;
+                    }
+
+                }
+
+                closeTestModal();
+
             }
-
-        }
-
-        stopTimer();
-
-        P3.testStarted = false;
-
-        testModal.classList.add(
-            "hidden"
         );
 
     }
 
 
     /* =====================================================
-       ESCAPE HTML
+       EXAM SWITCHER IN MAIN APP
     ===================================================== */
 
-    function escapeHTML(value) {
+    document
+        .querySelectorAll(
+            ".switch-card"
+        )
+        .forEach(
+            button => {
 
-        return String(value ?? "")
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
-            );
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const exam =
+                            button.dataset.switch;
+
+                        setExam(
+                            exam
+                        );
+
+                        const modal =
+                            $("examModal");
+
+                        if (modal) {
+
+                            modal.classList.add(
+                                "hidden"
+                            );
+
+                        }
+
+                        showToast(
+                            `${EXAMS[exam].name} selected`
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    const examSwitchBtn =
+        $("examSwitchBtn");
+
+    if (
+        examSwitchBtn
+    ) {
+
+        examSwitchBtn.addEventListener(
+            "click",
+            () => {
+
+                const modal =
+                    $("examModal");
+
+                if (modal) {
+
+                    modal.classList.remove(
+                        "hidden"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    const closeModal =
+        $("closeModal");
+
+    if (
+        closeModal
+    ) {
+
+        closeModal.addEventListener(
+            "click",
+            () => {
+
+                const modal =
+                    $("examModal");
+
+                if (modal) {
+
+                    modal.classList.add(
+                        "hidden"
+                    );
+
+                }
+
+            }
+        );
 
     }
 
 
     /* =====================================================
-       EXPOSE FOR OTHER PHASES
+       INITIALIZE
     ===================================================== */
 
-    window.MasteryPractice = {
+    function initializePhase3() {
 
-        refreshExam: syncExam,
+        getSelectedExam();
 
-        getState: () => ({
-            ...P3
-        }),
+        setExam(
+            currentExam
+        );
 
-        getSubjects: () => {
-
-            return EXAMS[
-                getCurrentExam()
-            ].subjects;
-
-        }
-
-    };
+    }
 
 
-    /* =====================================================
-       START
-    ===================================================== */
+    /*
+     * Wait until DOM is ready.
+     */
 
     if (
         document.readyState ===
@@ -1869,14 +2132,39 @@
 
         document.addEventListener(
             "DOMContentLoaded",
-            initPhase3
+            initializePhase3
         );
 
     }
     else {
 
-        initPhase3();
+        initializePhase3();
 
     }
+
+
+    /* =====================================================
+       PUBLIC DEBUG ACCESS
+       Useful while developing.
+    ===================================================== */
+
+    window.MASTREY_AI = {
+
+        generateTest:
+            generateAITest,
+
+        openMock:
+            openMockConfiguration,
+
+        getExam:
+            () => currentExam,
+
+        getQuestions:
+            () => questions,
+
+        getResults:
+            calculateResults
+
+    };
 
 })();
