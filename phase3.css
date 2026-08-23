@@ -1,0 +1,649 @@
+/* =========================================================
+   JEE MASTREY PRO
+   PHASE 3 — PRACTICE ENGINE
+   AI MOCK TEST UI
+========================================================= */
+
+#practicePage {
+    padding-bottom: 110px;
+}
+
+#practicePage .p2-container {
+    width: min(1100px, 100%);
+    margin: auto;
+}
+
+/* ---------------------------------------------------------
+   PRACTICE CARDS
+--------------------------------------------------------- */
+
+#practicePage .study-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 22px;
+}
+
+#practicePage .study-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 170px;
+    text-align: left;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 24px;
+    padding: 22px;
+    color: #fff;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,28,58,.88),
+            rgba(8,12,28,.92)
+        );
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.25),
+        inset 0 1px 0 rgba(255,255,255,.05);
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+#practicePage .study-card::before {
+    content: "";
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    right: -55px;
+    top: -65px;
+    border-radius: 50%;
+    background: rgba(100,120,255,.13);
+    filter: blur(10px);
+}
+
+#practicePage .study-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(120,150,255,.35);
+    box-shadow:
+        0 22px 55px rgba(0,0,0,.35),
+        0 0 35px rgba(90,120,255,.08);
+}
+
+#practicePage .study-card:active {
+    transform: scale(.98);
+}
+
+#practicePage .study-icon {
+    position: relative;
+    z-index: 2;
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    margin-bottom: 18px;
+    font-size: 25px;
+    background: rgba(255,255,255,.08);
+}
+
+#practicePage .study-card strong,
+#practicePage .study-card small {
+    position: relative;
+    z-index: 2;
+    display: block;
+}
+
+#practicePage .study-card strong {
+    font-size: 18px;
+    margin-bottom: 7px;
+}
+
+#practicePage .study-card small {
+    color: rgba(255,255,255,.58);
+    line-height: 1.5;
+}
+
+#practicePage .card-arrow {
+    position: absolute;
+    right: 20px;
+    bottom: 18px;
+    font-size: 22px;
+    color: rgba(255,255,255,.7);
+}
+
+/* AI MOCK CARD */
+
+#startMockBtn {
+    border-color: rgba(135,95,255,.32) !important;
+    background:
+        radial-gradient(
+            circle at 85% 15%,
+            rgba(135,80,255,.20),
+            transparent 35%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(42,25,78,.95),
+            rgba(9,12,28,.96)
+        ) !important;
+}
+
+#startMockBtn .study-icon {
+    background: rgba(145,95,255,.16);
+    box-shadow: 0 0 25px rgba(145,95,255,.12);
+}
+
+/* ---------------------------------------------------------
+   PRACTICE CONTENT
+--------------------------------------------------------- */
+
+#practiceContent {
+    margin-top: 28px;
+}
+
+.p3-panel {
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    padding: 20px;
+    background: rgba(10,15,35,.72);
+    backdrop-filter: blur(18px);
+}
+
+.p3-panel-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 7px;
+}
+
+.p3-panel-subtitle {
+    color: rgba(255,255,255,.55);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ---------------------------------------------------------
+   TEST MODAL
+--------------------------------------------------------- */
+
+#testModal {
+    z-index: 9999;
+}
+
+#testModal .test-sheet {
+    width: min(100%, 900px);
+    height: min(100dvh, 900px);
+    margin: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(
+            circle at 80% 0%,
+            rgba(100,80,255,.12),
+            transparent 35%
+        ),
+        #070b18;
+}
+
+.test-header {
+    flex: 0 0 auto;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: rgba(5,8,22,.88);
+    backdrop-filter: blur(20px);
+}
+
+.test-header button {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 13px;
+    background: rgba(255,255,255,.06);
+    color: white;
+    font-size: 25px;
+}
+
+.test-header > div:nth-child(2) {
+    flex: 1;
+}
+
+#testExam {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #8e9cff;
+    font-weight: 800;
+}
+
+.test-header strong {
+    display: block;
+    margin-top: 3px;
+    font-size: 16px;
+}
+
+.timer {
+    min-width: 76px;
+    text-align: center;
+    padding: 10px 9px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.07);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* TIMER WARNING */
+
+.timer.warning {
+    color: #ffcc66;
+    background: rgba(255,180,60,.1);
+}
+
+.timer.danger {
+    color: #ff6878;
+    background: rgba(255,60,80,.12);
+    animation: timerPulse 1s infinite;
+}
+
+@keyframes timerPulse {
+    50% {
+        transform: scale(1.04);
+    }
+}
+
+/* ---------------------------------------------------------
+   TEST AREA
+--------------------------------------------------------- */
+
+#testArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.p3-test-intro {
+    max-width: 650px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.p3-ai-orb {
+    width: 80px;
+    height: 80px;
+    margin: 10px auto 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 32px;
+    background:
+        radial-gradient(
+            circle,
+            rgba(150,110,255,.5),
+            rgba(50,40,120,.18) 50%,
+            transparent 72%
+        );
+    box-shadow:
+        0 0 40px rgba(130,90,255,.2);
+    animation: aiFloat 3s ease-in-out infinite;
+}
+
+@keyframes aiFloat {
+    50% {
+        transform: translateY(-7px) scale(1.03);
+    }
+}
+
+.p3-test-intro h2 {
+    font-size: clamp(25px, 6vw, 38px);
+    margin-bottom: 10px;
+}
+
+.p3-test-intro p {
+    color: rgba(255,255,255,.58);
+    line-height: 1.6;
+}
+
+/* ---------------------------------------------------------
+   MOCK CONFIG
+--------------------------------------------------------- */
+
+.p3-config {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+.p3-config-section {
+    margin-top: 20px;
+}
+
+.p3-config-label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,.52);
+    font-weight: 800;
+}
+
+.p3-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+}
+
+.p3-choice {
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 15px;
+    color: white;
+    background: rgba(255,255,255,.045);
+    text-align: left;
+}
+
+.p3-choice.active {
+    border-color: rgba(125,105,255,.7);
+    background: rgba(110,85,255,.15);
+    box-shadow: 0 0 25px rgba(110,85,255,.08);
+}
+
+.p3-choice strong {
+    display: block;
+    font-size: 14px;
+}
+
+.p3-choice small {
+    display: block;
+    margin-top: 5px;
+    color: rgba(255,255,255,.5);
+}
+
+/* ---------------------------------------------------------
+   QUESTION
+--------------------------------------------------------- */
+
+.p3-question-wrap {
+    max-width: 780px;
+    margin: auto;
+}
+
+.p3-progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.p3-progress-text {
+    font-size: 12px;
+    color: rgba(255,255,255,.55);
+}
+
+.p3-progress-track {
+    height: 6px;
+    flex: 1;
+    overflow: hidden;
+    border-radius: 20px;
+    background: rgba(255,255,255,.08);
+}
+
+.p3-progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg,#806cff,#47c9ff);
+    transition: width .3s ease;
+}
+
+.p3-question-card {
+    margin-top: 18px;
+    padding: 22px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    background: rgba(15,20,42,.72);
+}
+
+.p3-subject-badge {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 9px;
+    background: rgba(120,100,255,.12);
+    color: #a99cff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.p3-question {
+    margin-top: 18px;
+    font-size: clamp(17px,4.5vw,22px);
+    line-height: 1.65;
+    font-weight: 700;
+}
+
+.p3-options {
+    display: grid;
+    gap: 11px;
+    margin-top: 22px;
+}
+
+.p3-option {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 15px;
+    color: white;
+    background: rgba(255,255,255,.035);
+    text-align: left;
+    line-height: 1.5;
+}
+
+.p3-option:hover {
+    border-color: rgba(140,130,255,.45);
+}
+
+.p3-option.selected {
+    border-color: rgba(125,105,255,.75);
+    background: rgba(110,90,255,.13);
+}
+
+.p3-option.correct {
+    border-color: rgba(70,220,145,.65);
+    background: rgba(50,200,130,.10);
+}
+
+.p3-option.wrong {
+    border-color: rgba(255,85,105,.65);
+    background: rgba(255,70,90,.09);
+}
+
+.p3-option-letter {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: rgba(255,255,255,.07);
+    font-weight: 800;
+}
+
+/* ---------------------------------------------------------
+   TEST CONTROLS
+--------------------------------------------------------- */
+
+.p3-test-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.p3-control-btn {
+    flex: 1;
+    min-height: 48px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px;
+    color: white;
+    background: rgba(255,255,255,.06);
+    font-weight: 700;
+}
+
+.p3-control-btn.primary {
+    border: 0;
+    background: linear-gradient(135deg,#765fff,#3f9cff);
+}
+
+.p3-submit-btn {
+    width: 100%;
+    margin-top: 15px;
+    min-height: 52px;
+    border: 0;
+    border-radius: 15px;
+    color: white;
+    background: linear-gradient(135deg,#765fff,#3f9cff);
+    font-weight: 800;
+}
+
+/* ---------------------------------------------------------
+   RESULT
+--------------------------------------------------------- */
+
+.p3-result {
+    max-width: 760px;
+    margin: auto;
+}
+
+.p3-score-card {
+    text-align: center;
+    padding: 25px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    background: rgba(20,25,50,.75);
+}
+
+.p3-score-circle {
+    width: 145px;
+    height: 145px;
+    margin: 10px auto 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 7px solid rgba(120,100,255,.4);
+    box-shadow: 0 0 45px rgba(120,100,255,.12);
+}
+
+.p3-score-circle strong {
+    font-size: 32px;
+}
+
+.p3-result-stats {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 9px;
+    margin-top: 18px;
+}
+
+.p3-result-stat {
+    padding: 12px 7px;
+    border-radius: 13px;
+    background: rgba(255,255,255,.045);
+}
+
+.p3-result-stat strong {
+    display: block;
+    font-size: 18px;
+}
+
+.p3-result-stat small {
+    display: block;
+    margin-top: 4px;
+    color: rgba(255,255,255,.5);
+    font-size: 10px;
+}
+
+/* ---------------------------------------------------------
+   SOLUTIONS
+--------------------------------------------------------- */
+
+.p3-solutions {
+    margin-top: 20px;
+}
+
+.p3-solution {
+    margin-top: 12px;
+    padding: 18px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    background: rgba(255,255,255,.035);
+}
+
+.p3-solution h4 {
+    line-height: 1.5;
+}
+
+.p3-solution .answer {
+    margin-top: 10px;
+    color: #75e5a8;
+    font-weight: 800;
+}
+
+.p3-explanation {
+    margin-top: 10px;
+    color: rgba(255,255,255,.62);
+    line-height: 1.65;
+    font-size: 13px;
+}
+
+.p3-ai-analysis {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid rgba(130,100,255,.2);
+    border-radius: 20px;
+    background: rgba(100,80,255,.07);
+}
+
+.p3-ai-analysis h3 {
+    margin-bottom: 8px;
+}
+
+.p3-ai-analysis p {
+    color: rgba(255,255,255,.65);
+    line-height: 1.65;
+}
+
+/* ---------------------------------------------------------
+   MOBILE
+--------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    #practicePage .study-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .p3-choice-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .p3-result-stats {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    #testArea {
+        padding: 14px;
+    }
+
+    .p3-question-card {
+        padding: 17px;
+        border-radius: 20px;
+    }
+
+    .test-header {
+        min-height: 62px;
+    }
+}

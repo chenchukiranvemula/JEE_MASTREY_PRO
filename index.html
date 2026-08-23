@@ -1,0 +1,2878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<meta name="theme-color" content="#050816">
+
+<meta
+    name="description"
+    content="JEE MASTREY PRO — Smart preparation platform for JEE, NEET and CA"
+>
+
+<title>JEE MASTREY PRO</title>
+
+<!-- =====================================================
+     MAIN + PHASE STYLES
+===================================================== -->
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="phase2.css">
+<link rel="stylesheet" href="phase3.css">
+<link rel="stylesheet" href="phase4.css">
+<link rel="stylesheet" href="phase5.css">
+<link rel="stylesheet" href="phase6.css">
+<link rel="stylesheet" href="phase7.css">
+<link rel="stylesheet" href="phase8.css">
+<link rel="stylesheet" href="phase9.css">
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     GLOBAL BACKGROUND
+===================================================== -->
+
+<div class="background">
+
+    <div class="stars stars-1"></div>
+    <div class="stars stars-2"></div>
+
+    <div class="orb orb-purple"></div>
+    <div class="orb orb-blue"></div>
+    <div class="orb orb-cyan"></div>
+
+    <div class="grid-background"></div>
+
+</div>
+
+
+<!-- =====================================================
+     SPLASH SCREEN
+===================================================== -->
+
+<section
+    id="splashScreen"
+    class="screen splash-screen"
+>
+
+    <div class="splash-content">
+
+        <div class="logo-container">
+
+            <div class="logo-ring ring-one"></div>
+            <div class="logo-ring ring-two"></div>
+
+            <div class="main-logo">
+                JM
+            </div>
+
+        </div>
+
+        <h1>
+            JEE MASTREY
+            <span>PRO</span>
+        </h1>
+
+        <p class="tagline">
+            LEARN • PRACTICE • MASTER
+        </p>
+
+        <div class="loading-container">
+
+            <div class="loading-track">
+                <div id="loadingBar"></div>
+            </div>
+
+            <span id="loadingText">
+                Initializing...
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<section
+    id="loginScreen"
+    class="screen hidden"
+>
+
+    <div class="glass-card auth-card">
+
+        <div class="small-logo">
+            JM
+        </div>
+
+        <div class="eyebrow">
+            YOUR EXAM COMMAND CENTER
+        </div>
+
+        <h2>
+            Prepare smarter.
+        </h2>
+
+        <p class="description">
+            One powerful platform for
+            JEE, NEET and CA preparation.
+        </p>
+
+        <button
+            id="googleBtn"
+            class="primary-btn"
+            type="button"
+        >
+            <span class="google-icon">G</span>
+            Continue with Google
+        </button>
+
+        <button
+            id="guestBtn"
+            class="secondary-btn"
+            type="button"
+        >
+            Continue as Guest
+        </button>
+
+        <p class="small-note">
+            Google authentication will be connected
+            through the secure backend.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PROFILE SETUP
+===================================================== -->
+
+<section
+    id="profileSetup"
+    class="screen hidden"
+>
+
+    <div class="glass-card profile-card">
+
+        <div class="small-logo">
+            JM
+        </div>
+
+        <div class="eyebrow">
+            PROFILE SETUP
+        </div>
+
+        <h2>
+            Welcome, Aspirant.
+        </h2>
+
+        <p class="description">
+            Tell us what you are preparing for.
+        </p>
+
+        <input
+            id="studentName"
+            type="text"
+            maxlength="40"
+            placeholder="Enter your name"
+            autocomplete="name"
+        >
+
+        <h3>
+            Choose your exam
+        </h3>
+
+        <div class="exam-grid">
+
+            <button
+                class="exam-card"
+                data-exam="jee"
+                type="button"
+            >
+                <div class="exam-icon jee-icon">
+                    J
+                </div>
+
+                <div>
+                    <strong>JEE</strong>
+                    <span>Main + Advanced</span>
+                </div>
+
+                <i>›</i>
+            </button>
+
+
+            <button
+                class="exam-card"
+                data-exam="neet"
+                type="button"
+            >
+                <div class="exam-icon neet-icon">
+                    N
+                </div>
+
+                <div>
+                    <strong>NEET</strong>
+                    <span>Medical Entrance</span>
+                </div>
+
+                <i>›</i>
+            </button>
+
+
+            <button
+                class="exam-card"
+                data-exam="ca"
+                type="button"
+            >
+                <div class="exam-icon ca-icon">
+                    C
+                </div>
+
+                <div>
+                    <strong>CA</strong>
+                    <span>Chartered Accountancy</span>
+                </div>
+
+                <i>›</i>
+            </button>
+
+        </div>
+
+        <button
+            id="enterBtn"
+            class="primary-btn enter-btn disabled"
+            type="button"
+            disabled
+        >
+            Enter MASTREY PRO
+            <span>→</span>
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     MAIN APPLICATION
+===================================================== -->
+
+<main
+    id="app"
+    class="hidden"
+>
+
+
+<!-- =====================================================
+     APP HEADER
+===================================================== -->
+
+<header class="app-header">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            JM
+        </div>
+
+        <div class="brand-name">
+
+            <strong>
+                JEE MASTREY
+            </strong>
+
+            <span>
+                PRO
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <button
+        id="examSwitchBtn"
+        class="exam-pill"
+        type="button"
+    >
+
+        <span id="currentExam">
+            JEE
+        </span>
+
+        <span>⌄</span>
+
+    </button>
+
+</header>
+
+
+<!-- =====================================================
+     PHASE 1 — HOME / DASHBOARD
+===================================================== -->
+
+<section
+    id="homePage"
+    class="page active"
+>
+
+    <div id="dashboard"></div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 2 — STUDY ENGINE
+===================================================== -->
+
+<section
+    id="learnPage"
+    class="page"
+>
+
+    <div class="p2-container">
+
+        <!-- HERO -->
+
+        <div class="p2-hero">
+
+            <div class="hero-content">
+
+                <span class="p2-label">
+                    STUDY ENGINE
+                </span>
+
+                <h1>
+                    Learn.
+                    <span>Understand.</span>
+                    Master.
+                </h1>
+
+                <p>
+                    Complete syllabus, theory,
+                    formulas and smart tricks.
+                </p>
+
+            </div>
+
+            <div class="hero-orbit">
+
+                <div class="orbit-core">
+
+                    <span id="learnProgress">
+                        0%
+                    </span>
+
+                    <small>
+                        PROGRESS
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- STUDY STATS -->
+
+        <div class="p2-stats">
+
+            <div class="p2-stat">
+
+                <div class="stat-icon">
+                    📚
+                </div>
+
+                <strong id="syllabusCount">
+                    0
+                </strong>
+
+                <small>
+                    Chapters
+                </small>
+
+            </div>
+
+
+            <div class="p2-stat">
+
+                <div class="stat-icon">
+                    ⚡
+                </div>
+
+                <strong id="formulaCount">
+                    0
+                </strong>
+
+                <small>
+                    Formulas
+                </small>
+
+            </div>
+
+
+            <div class="p2-stat">
+
+                <div class="stat-icon">
+                    🧠
+                </div>
+
+                <strong id="topicCount">
+                    0
+                </strong>
+
+                <small>
+                    Topics
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- STUDY RESOURCES -->
+
+        <div class="p2-section-title">
+
+            <span>
+                LEARN
+            </span>
+
+            <h2>
+                Study Resources
+            </h2>
+
+            <p>
+                Everything you need to build strong concepts.
+            </p>
+
+        </div>
+
+
+        <div class="study-grid">
+
+            <button
+                class="study-card"
+                id="openSyllabus"
+                type="button"
+            >
+
+                <div class="study-icon syllabus">
+                    📚
+                </div>
+
+                <strong>
+                    Syllabus
+                </strong>
+
+                <small>
+                    Complete chapter structure
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="study-card"
+                id="openTheory"
+                type="button"
+            >
+
+                <div class="study-icon theory">
+                    📖
+                </div>
+
+                <strong>
+                    Theory
+                </strong>
+
+                <small>
+                    Concept explanations
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="study-card"
+                id="openFormulas"
+                type="button"
+            >
+
+                <div class="study-icon formula">
+                    ⚡
+                </div>
+
+                <strong>
+                    Formulas
+                </strong>
+
+                <small>
+                    Important formulas
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="study-card"
+                id="openTricks"
+                type="button"
+            >
+
+                <div class="study-icon tricks">
+                    🧠
+                </div>
+
+                <strong>
+                    Tricks
+                </strong>
+
+                <small>
+                    Smart shortcuts
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <!-- SUBJECTS -->
+
+        <div class="p2-section-title large">
+
+            <span>
+                SUBJECTS
+            </span>
+
+            <h2>
+                Choose Subject
+            </h2>
+
+            <p>
+                Continue your preparation.
+            </p>
+
+        </div>
+
+
+        <div
+            id="subjectGrid"
+            class="subject-grid"
+        >
+
+            <button
+                class="subject-card"
+                data-subject="physics"
+                type="button"
+            >
+
+                <div class="subject-icon">
+                    ⚛️
+                </div>
+
+                <div class="subject-info">
+
+                    <strong>
+                        Physics
+                    </strong>
+
+                    <small>
+                        Concepts • Formulas • Practice
+                    </small>
+
+                    <div class="subject-progress">
+                        <span style="width:0%"></span>
+                    </div>
+
+                </div>
+
+                <div class="subject-arrow">
+                    ›
+                </div>
+
+            </button>
+
+
+            <button
+                class="subject-card"
+                data-subject="chemistry"
+                type="button"
+            >
+
+                <div class="subject-icon">
+                    🧪
+                </div>
+
+                <div class="subject-info">
+
+                    <strong>
+                        Chemistry
+                    </strong>
+
+                    <small>
+                        Physical • Organic • Inorganic
+                    </small>
+
+                    <div class="subject-progress">
+                        <span style="width:0%"></span>
+                    </div>
+
+                </div>
+
+                <div class="subject-arrow">
+                    ›
+                </div>
+
+            </button>
+
+
+            <button
+                class="subject-card"
+                data-subject="mathematics"
+                type="button"
+            >
+
+                <div class="subject-icon">
+                    ∑
+                </div>
+
+                <div class="subject-info">
+
+                    <strong>
+                        Mathematics
+                    </strong>
+
+                    <small>
+                        Concepts • Formulas • Problems
+                    </small>
+
+                    <div class="subject-progress">
+                        <span style="width:0%"></span>
+                    </div>
+
+                </div>
+
+                <div class="subject-arrow">
+                    ›
+                </div>
+
+            </button>
+
+        </div>
+
+
+        <!-- IMPORTANT TOPICS -->
+
+        <div class="important-card">
+
+            <div class="important-icon">
+                🔥
+            </div>
+
+            <div>
+
+                <span>
+                    HIGH PRIORITY
+                </span>
+
+                <strong>
+                    Important Topics
+                </strong>
+
+                <p>
+                    Focus on high-weightage concepts first.
+                </p>
+
+            </div>
+
+            <button
+                id="importantTopicsBtn"
+                type="button"
+            >
+                →
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 2 — STUDY DETAIL
+===================================================== -->
+
+<section
+    id="studyDetailPage"
+    class="page"
+>
+
+    <div class="p2-container">
+
+        <button
+            id="studyBackBtn"
+            class="internal-back"
+            type="button"
+        >
+            ← Back
+        </button>
+
+
+        <div class="subject-heading">
+
+            <div
+                id="detailSubjectIcon"
+                class="large-subject-icon"
+            >
+                ⚛️
+            </div>
+
+            <div>
+
+                <span id="detailType">
+                    SYLLABUS
+                </span>
+
+                <h2 id="detailTitle">
+                    Physics
+                </h2>
+
+                <p id="detailSubtitle">
+                    Complete preparation structure
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="studyDetailContent"
+            class="chapter-list"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 3 — PRACTICE ENGINE
+===================================================== -->
+
+<section
+    id="practicePage"
+    class="page"
+>
+
+    <div class="p2-container">
+
+        <div class="p2-section-title">
+
+            <span>
+                PRACTICE ENGINE
+            </span>
+
+            <h2>
+                Practice Arena
+            </h2>
+
+            <p>
+                Test yourself and improve your score.
+            </p>
+
+        </div>
+
+
+        <div class="study-grid">
+
+
+            <!-- MOCK TEST -->
+
+            <button
+                id="startMockBtn"
+                class="study-card"
+                type="button"
+            >
+
+                <div class="study-icon syllabus">
+                    📝
+                </div>
+
+                <strong>
+                    Mock Test
+                </strong>
+
+                <small>
+                    AI-powered fresh questions
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <!-- TOPIC PRACTICE -->
+
+            <button
+                id="topicPracticeBtn"
+                class="study-card"
+                type="button"
+            >
+
+                <div class="study-icon theory">
+                    🎯
+                </div>
+
+                <strong>
+                    Topic Practice
+                </strong>
+
+                <small>
+                    Practice chapter-wise
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <!-- IMPORTANT PRACTICE -->
+
+            <button
+                id="importantPracticeBtn"
+                class="study-card"
+                type="button"
+            >
+
+                <div class="study-icon tricks">
+                    🔥
+                </div>
+
+                <strong>
+                    Important
+                </strong>
+
+                <small>
+                    High priority practice
+                </small>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="practiceContent"
+            class="chapter-list"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 4 — AI MOCK TEST ENGINE
+===================================================== -->
+
+<section
+    id="mockTestPage"
+    class="page"
+>
+
+    <div class="phase4-container">
+
+        <div class="phase4-hero">
+
+            <span class="phase4-label">
+                AI MOCK TEST ENGINE
+            </span>
+
+            <h1>
+                Challenge
+                <span>Yourself.</span>
+            </h1>
+
+            <p>
+                Fresh AI-generated questions designed
+                around your selected exam and syllabus.
+            </p>
+
+        </div>
+
+
+        <!-- TEST MODE -->
+
+        <div class="phase4-section">
+
+            <div class="phase4-section-title">
+
+                <span>
+                    TEST MODE
+                </span>
+
+                <h2>
+                    Choose your challenge
+                </h2>
+
+            </div>
+
+
+            <div
+                id="mockModeGrid"
+                class="mock-mode-grid"
+            >
+
+                <button
+                    class="mock-mode-card"
+                    data-mode="full"
+                    type="button"
+                >
+
+                    <span class="mock-mode-icon">
+                        🏆
+                    </span>
+
+                    <strong>
+                        Full Mock
+                    </strong>
+
+                    <small>
+                        Complete exam simulation
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="mock-mode-card"
+                    data-mode="subject"
+                    type="button"
+                >
+
+                    <span class="mock-mode-icon">
+                        ⚛️
+                    </span>
+
+                    <strong>
+                        Subject Mock
+                    </strong>
+
+                    <small>
+                        Focus on one subject
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="mock-mode-card"
+                    data-mode="topic"
+                    type="button"
+                >
+
+                    <span class="mock-mode-icon">
+                        🎯
+                    </span>
+
+                    <strong>
+                        Topic Mock
+                    </strong>
+
+                    <small>
+                        Target a specific topic
+                    </small>
+
+                </button>
+
+
+                <button
+                    class="mock-mode-card"
+                    data-mode="custom"
+                    type="button"
+                >
+
+                    <span class="mock-mode-icon">
+                        ⚙️
+                    </span>
+
+                    <strong>
+                        Custom Test
+                    </strong>
+
+                    <small>
+                        Build your own test
+                    </small>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- TEST CONFIGURATION -->
+
+        <div
+            id="mockConfiguration"
+            class="phase4-panel hidden"
+        >
+
+            <div class="phase4-panel-header">
+
+                <span>
+                    CONFIGURATION
+                </span>
+
+                <h2>
+                    Build Your Test
+                </h2>
+
+            </div>
+
+
+            <div class="phase4-form">
+
+                <div class="phase4-field">
+
+                    <label for="mockExamSelect">
+                        Exam
+                    </label>
+
+                    <select id="mockExamSelect">
+
+                        <option value="jee-main">
+                            JEE Main
+                        </option>
+
+                        <option value="jee-advanced">
+                            JEE Advanced
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="phase4-field">
+
+                    <label for="mockSubjectSelect">
+                        Subject
+                    </label>
+
+                    <select id="mockSubjectSelect">
+
+                        <option value="all">
+                            Physics + Chemistry + Mathematics
+                        </option>
+
+                        <option value="physics">
+                            Physics
+                        </option>
+
+                        <option value="chemistry">
+                            Chemistry
+                        </option>
+
+                        <option value="mathematics">
+                            Mathematics
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="phase4-field">
+
+                    <label for="mockDifficultySelect">
+                        Difficulty
+                    </label>
+
+                    <select id="mockDifficultySelect">
+
+                        <option value="mixed">
+                            Mixed
+                        </option>
+
+                        <option value="easy">
+                            Easy
+                        </option>
+
+                        <option value="medium">
+                            Medium
+                        </option>
+
+                        <option value="hard">
+                            Hard
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="phase4-field">
+
+                    <label for="mockQuestionCount">
+                        Questions
+                    </label>
+
+                    <select id="mockQuestionCount">
+
+                        <option value="10">
+                            10 Questions
+                        </option>
+
+                        <option value="20">
+                            20 Questions
+                        </option>
+
+                        <option value="30">
+                            30 Questions
+                        </option>
+
+                        <option value="60">
+                            60 Questions
+                        </option>
+
+                        <option value="90">
+                            90 Questions
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="phase4-field">
+
+                    <label for="mockDuration">
+                        Duration
+                    </label>
+
+                    <select id="mockDuration">
+
+                        <option value="15">
+                            15 Minutes
+                        </option>
+
+                        <option value="30">
+                            30 Minutes
+                        </option>
+
+                        <option value="60">
+                            60 Minutes
+                        </option>
+
+                        <option value="120">
+                            120 Minutes
+                        </option>
+
+                        <option value="180">
+                            180 Minutes
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="generateMockBtn"
+                class="primary-btn phase4-generate-btn"
+                type="button"
+            >
+                ✦ Generate Fresh Mock Test
+            </button>
+
+        </div>
+
+
+        <!-- AI GENERATION -->
+
+        <div
+            id="aiGenerationPanel"
+            class="phase4-generation hidden"
+        >
+
+            <div class="generation-orb">
+                ✦
+            </div>
+
+            <span>
+                MASTREY AI
+            </span>
+
+            <h2>
+                Creating your test...
+            </h2>
+
+            <p id="generationStatus">
+                Building a unique question set.
+            </p>
+
+            <div class="generation-progress">
+
+                <div
+                    id="generationProgressBar"
+                    class="generation-progress-bar"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MOCK PREVIEW -->
+
+        <div
+            id="mockPreview"
+            class="phase4-panel hidden"
+        >
+
+            <div class="phase4-panel-header">
+
+                <span>
+                    READY
+                </span>
+
+                <h2>
+                    Your Mock Test
+                </h2>
+
+            </div>
+
+            <div
+                id="mockPreviewContent"
+                class="mock-preview-content"
+            ></div>
+
+            <button
+                id="beginMockBtn"
+                class="primary-btn"
+                type="button"
+            >
+                Start Test →
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 4 — ACTIVE AI TEST SCREEN
+===================================================== -->
+
+<section
+    id="activeTestPage"
+    class="page"
+>
+
+    <div class="active-test-shell">
+
+        <header class="active-test-header">
+
+            <button
+                id="activeTestBackBtn"
+                type="button"
+                class="test-icon-btn"
+            >
+                ×
+            </button>
+
+            <div class="active-test-title">
+
+                <span id="activeTestExam">
+                    JEE MAIN
+                </span>
+
+                <strong id="activeTestTitle">
+                    AI Mock Test
+                </strong>
+
+            </div>
+
+            <div
+                id="activeTestTimer"
+                class="active-test-timer"
+            >
+                00:00:00
+            </div>
+
+        </header>
+
+
+        <div class="test-progress-wrapper">
+
+            <div class="test-progress-info">
+
+                <span>
+                    Question
+                    <strong id="currentQuestionNumber">
+                        1
+                    </strong>
+                    /
+                    <strong id="totalQuestionNumber">
+                        0
+                    </strong>
+                </span>
+
+                <span id="answeredCount">
+                    0 Answered
+                </span>
+
+            </div>
+
+            <div class="test-progress-track">
+
+                <div
+                    id="testProgressBar"
+                    class="test-progress-bar"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="activeQuestionArea"
+            class="active-question-area"
+        ></div>
+
+
+        <div class="test-actions">
+
+            <button
+                id="clearAnswerBtn"
+                class="test-action secondary"
+                type="button"
+            >
+                Clear
+            </button>
+
+            <button
+                id="markReviewBtn"
+                class="test-action"
+                type="button"
+            >
+                Mark Review
+            </button>
+
+            <button
+                id="nextQuestionBtn"
+                class="test-action primary"
+                type="button"
+            >
+                Next →
+            </button>
+
+        </div>
+
+
+        <div
+            id="questionPalette"
+            class="question-palette"
+        ></div>
+
+
+        <button
+            id="submitMockBtn"
+            class="submit-test-btn"
+            type="button"
+        >
+            Submit Test
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 4 — RESULTS
+===================================================== -->
+
+<section
+    id="resultsPage"
+    class="page"
+>
+
+    <div class="results-container">
+
+        <div class="results-hero">
+
+            <span>
+                TEST COMPLETE
+            </span>
+
+            <h1>
+                Your Performance
+            </h1>
+
+            <p>
+                Review your performance and learn from every question.
+            </p>
+
+        </div>
+
+
+        <div class="score-card">
+
+            <div class="score-ring">
+
+                <strong id="resultScore">
+                    0
+                </strong>
+
+                <span>
+                    SCORE
+                </span>
+
+            </div>
+
+            <div class="score-summary">
+
+                <div>
+                    <small>
+                        Accuracy
+                    </small>
+
+                    <strong id="resultAccuracy">
+                        0%
+                    </strong>
+                </div>
+
+                <div>
+                    <small>
+                        Correct
+                    </small>
+
+                    <strong id="resultCorrect">
+                        0
+                    </strong>
+                </div>
+
+                <div>
+                    <small>
+                        Incorrect
+                    </small>
+
+                    <strong id="resultIncorrect">
+                        0
+                    </strong>
+                </div>
+
+                <div>
+                    <small>
+                        Unattempted
+                    </small>
+
+                    <strong id="resultUnattempted">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUBJECT ANALYSIS -->
+
+        <div class="results-panel">
+
+            <div class="results-panel-title">
+
+                <span>
+                    ANALYSIS
+                </span>
+
+                <h2>
+                    Subject Performance
+                </h2>
+
+            </div>
+
+            <div
+                id="subjectPerformance"
+                class="subject-performance"
+            ></div>
+
+        </div>
+
+
+        <!-- TIME ANALYSIS -->
+
+        <div class="results-panel">
+
+            <div class="results-panel-title">
+
+                <span>
+                    TIME
+                </span>
+
+                <h2>
+                    Time Analysis
+                </h2>
+
+            </div>
+
+            <div
+                id="timeAnalysis"
+                class="time-analysis"
+            ></div>
+
+        </div>
+
+
+        <!-- PERFORMANCE INSIGHTS -->
+
+        <div class="results-panel">
+
+            <div class="results-panel-title">
+
+                <span>
+                    MASTREY INSIGHTS
+                </span>
+
+                <h2>
+                    What to improve
+                </h2>
+
+            </div>
+
+            <div
+                id="performanceInsights"
+                class="performance-insights"
+            ></div>
+
+        </div>
+
+
+        <div class="results-buttons">
+
+            <button
+                id="viewSolutionsBtn"
+                class="primary-btn"
+                type="button"
+            >
+                View Detailed Solutions
+            </button>
+
+            <button
+                id="retryMockBtn"
+                class="secondary-btn"
+                type="button"
+            >
+                Take Another Test
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 4 — DETAILED SOLUTIONS
+===================================================== -->
+
+<section
+    id="solutionsPage"
+    class="page"
+>
+
+    <div class="solutions-container">
+
+        <div class="solutions-header">
+
+            <button
+                id="solutionsBackBtn"
+                class="internal-back"
+                type="button"
+            >
+                ← Results
+            </button>
+
+            <span>
+                DETAILED SOLUTIONS
+            </span>
+
+            <h1>
+                Learn from every question.
+            </h1>
+
+        </div>
+
+
+        <div
+            id="solutionsList"
+            class="solutions-list"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 5 — COMPLETE SYLLABUS + PROGRESS ENGINE
+===================================================== -->
+
+<section
+    id="syllabusEnginePage"
+    class="page"
+>
+
+    <div class="phase5-container">
+
+        <div class="phase5-hero">
+
+            <span>
+                PHASE 5
+            </span>
+
+            <h1>
+                Master the
+                <span>Syllabus.</span>
+            </h1>
+
+            <p>
+                Track every subject, chapter, topic
+                and learning milestone.
+            </p>
+
+        </div>
+
+
+        <div
+            id="syllabusOverview"
+            class="syllabus-overview"
+        ></div>
+
+
+        <div class="phase5-toolbar">
+
+            <select id="syllabusSubjectFilter">
+
+                <option value="all">
+                    All Subjects
+                </option>
+
+                <option value="physics">
+                    Physics
+                </option>
+
+                <option value="chemistry">
+                    Chemistry
+                </option>
+
+                <option value="mathematics">
+                    Mathematics
+                </option>
+
+            </select>
+
+
+            <select id="syllabusStatusFilter">
+
+                <option value="all">
+                    All Topics
+                </option>
+
+                <option value="not-started">
+                    Not Started
+                </option>
+
+                <option value="learning">
+                    Learning
+                </option>
+
+                <option value="completed">
+                    Completed
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            id="completeSyllabusList"
+            class="complete-syllabus-list"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 6 — RANK / PERCENTILE / COLLEGE PREDICTOR
+===================================================== -->
+
+<section
+    id="predictorPage"
+    class="page"
+>
+
+    <div class="phase6-container">
+
+        <div class="phase6-hero">
+
+            <span>
+                PREDICTOR ENGINE
+            </span>
+
+            <h1>
+                Know your
+                <span>Next Rank.</span>
+            </h1>
+
+            <p>
+                Estimate percentile, rank and possible
+                college opportunities from your performance.
+            </p>
+
+        </div>
+
+
+        <div class="predictor-tabs">
+
+            <button
+                class="predictor-tab active"
+                data-predictor="percentile"
+                type="button"
+            >
+                Percentile
+            </button>
+
+            <button
+                class="predictor-tab"
+                data-predictor="rank"
+                type="button"
+            >
+                Rank
+            </button>
+
+            <button
+                class="predictor-tab"
+                data-predictor="college"
+                type="button"
+            >
+                College
+            </button>
+
+        </div>
+
+
+        <!-- PERCENTILE -->
+
+        <div
+            id="percentilePredictor"
+            class="predictor-panel active"
+        >
+
+            <div class="predictor-card">
+
+                <span>
+                    JEE PERFORMANCE
+                </span>
+
+                <h2>
+                    Percentile Predictor
+                </h2>
+
+                <div class="predictor-form">
+
+                    <label>
+                        Exam
+
+                        <select id="percentileExam">
+
+                            <option value="jee-main">
+                                JEE Main
+                            </option>
+
+                            <option value="jee-advanced">
+                                JEE Advanced
+                            </option>
+
+                        </select>
+
+                    </label>
+
+
+                    <label>
+                        Marks
+
+                        <input
+                            id="percentileMarks"
+                            type="number"
+                            min="0"
+                            placeholder="Enter marks"
+                        >
+
+                    </label>
+
+                </div>
+
+                <button
+                    id="calculatePercentileBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Calculate Percentile
+                </button>
+
+                <div
+                    id="percentileResult"
+                    class="predictor-result"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RANK -->
+
+        <div
+            id="rankPredictor"
+            class="predictor-panel"
+        >
+
+            <div class="predictor-card">
+
+                <span>
+                    RANK ESTIMATION
+                </span>
+
+                <h2>
+                    Rank Predictor
+                </h2>
+
+                <div class="predictor-form">
+
+                    <label>
+                        Percentile
+
+                        <input
+                            id="rankPercentile"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.001"
+                            placeholder="Enter percentile"
+                        >
+
+                    </label>
+
+
+                    <label>
+                        Category
+
+                        <select id="rankCategory">
+
+                            <option value="general">
+                                General
+                            </option>
+
+                            <option value="ews">
+                                EWS
+                            </option>
+
+                            <option value="obc">
+                                OBC-NCL
+                            </option>
+
+                            <option value="sc">
+                                SC
+                            </option>
+
+                            <option value="st">
+                                ST
+                            </option>
+
+                        </select>
+
+                    </label>
+
+                </div>
+
+                <button
+                    id="calculateRankBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Estimate Rank
+                </button>
+
+                <div
+                    id="rankResult"
+                    class="predictor-result"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- COLLEGE -->
+
+        <div
+            id="collegePredictor"
+            class="predictor-panel"
+        >
+
+            <div class="predictor-card">
+
+                <span>
+                    COLLEGE OPPORTUNITIES
+                </span>
+
+                <h2>
+                    College Predictor
+                </h2>
+
+                <div class="predictor-form">
+
+                    <label>
+                        Rank
+
+                        <input
+                            id="collegeRank"
+                            type="number"
+                            min="1"
+                            placeholder="Enter rank"
+                        >
+
+                    </label>
+
+
+                    <label>
+                        Gender
+
+                        <select id="collegeGender">
+
+                            <option value="male">
+                                Male
+                            </option>
+
+                            <option value="female">
+                                Female
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </label>
+
+
+                    <label>
+                        Category
+
+                        <select id="collegeCategory">
+
+                            <option value="general">
+                                General
+                            </option>
+
+                            <option value="ews">
+                                EWS
+                            </option>
+
+                            <option value="obc">
+                                OBC-NCL
+                            </option>
+
+                            <option value="sc">
+                                SC
+                            </option>
+
+                            <option value="st">
+                                ST
+                            </option>
+
+                        </select>
+
+                    </label>
+
+                </div>
+
+                <button
+                    id="calculateCollegeBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Find Opportunities
+                </button>
+
+                <div
+                    id="collegeResult"
+                    class="predictor-result"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 7 — PERFORMANCE ANALYTICS
+===================================================== -->
+
+<section
+    id="analyticsPage"
+    class="page"
+>
+
+    <div class="phase7-container">
+
+        <div class="phase7-hero">
+
+            <span>
+                PERFORMANCE ENGINE
+            </span>
+
+            <h1>
+                See your
+                <span>Growth.</span>
+            </h1>
+
+            <p>
+                Turn every test and study session
+                into measurable progress.
+            </p>
+
+        </div>
+
+
+        <div
+            id="analyticsSummary"
+            class="analytics-summary"
+        ></div>
+
+
+        <div class="analytics-grid">
+
+            <div class="analytics-panel">
+
+                <span>
+                    ACCURACY
+                </span>
+
+                <h2>
+                    Accuracy Trend
+                </h2>
+
+                <div
+                    id="accuracyChart"
+                    class="analytics-chart"
+                ></div>
+
+            </div>
+
+
+            <div class="analytics-panel">
+
+                <span>
+                    SCORE
+                </span>
+
+                <h2>
+                    Score Trend
+                </h2>
+
+                <div
+                    id="scoreChart"
+                    class="analytics-chart"
+                ></div>
+
+            </div>
+
+
+            <div class="analytics-panel">
+
+                <span>
+                    SUBJECTS
+                </span>
+
+                <h2>
+                    Subject Strength
+                </h2>
+
+                <div
+                    id="subjectChart"
+                    class="analytics-chart"
+                ></div>
+
+            </div>
+
+
+            <div class="analytics-panel">
+
+                <span>
+                    HISTORY
+                </span>
+
+                <h2>
+                    Recent Tests
+                </h2>
+
+                <div
+                    id="testHistory"
+                    class="test-history"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 8 — AI STUDY PARTNER / ACCOUNT / SYNC
+===================================================== -->
+
+<section
+    id="aiPartnerPage"
+    class="page"
+>
+
+    <div class="phase8-container">
+
+        <div class="phase8-hero">
+
+            <div class="ai-big-orb">
+                ✦
+            </div>
+
+            <span>
+                MASTREY AI
+            </span>
+
+            <h1>
+                Your Personal
+                <span>Study Partner.</span>
+            </h1>
+
+            <p>
+                Ask questions, understand concepts,
+                solve problems and receive guided explanations.
+            </p>
+
+        </div>
+
+
+        <div class="ai-chat-shell">
+
+            <div class="ai-chat-header">
+
+                <div>
+
+                    <span>
+                        MASTREY AI
+                    </span>
+
+                    <strong>
+                        Study Assistant
+                    </strong>
+
+                </div>
+
+                <div
+                    id="aiStatus"
+                    class="ai-status"
+                >
+                    ● Ready
+                </div>
+
+            </div>
+
+
+            <div
+                id="aiMessages"
+                class="ai-messages"
+            >
+
+                <div class="ai-message ai-message-bot">
+
+                    <span class="ai-message-icon">
+                        ✦
+                    </span>
+
+                    <p>
+                        Hi! I'm MASTREY AI.
+                        Ask me about a concept,
+                        formula or problem.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="ai-input-area">
+
+                <textarea
+                    id="aiInput"
+                    rows="1"
+                    maxlength="2000"
+                    placeholder="Ask MASTREY AI..."
+                ></textarea>
+
+                <button
+                    id="sendAiBtn"
+                    type="button"
+                >
+                    →
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- AI QUICK ACTIONS -->
+
+        <div class="ai-quick-actions">
+
+            <button
+                data-ai-action="explain"
+                type="button"
+            >
+                Explain a concept
+            </button>
+
+            <button
+                data-ai-action="solve"
+                type="button"
+            >
+                Solve a problem
+            </button>
+
+            <button
+                data-ai-action="strategy"
+                type="button"
+            >
+                Study strategy
+            </button>
+
+            <button
+                data-ai-action="revision"
+                type="button"
+            >
+                Quick revision
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PHASE 9 — SETTINGS / FINAL APP CONTROL
+===================================================== -->
+
+<section
+    id="settingsPage"
+    class="page"
+>
+
+    <div class="phase9-container">
+
+        <div class="phase9-hero">
+
+            <span>
+                MASTREY CONTROL
+            </span>
+
+            <h1>
+                Your App.
+                <span>Your Rules.</span>
+            </h1>
+
+            <p>
+                Manage your preferences,
+                study experience and application settings.
+            </p>
+
+        </div>
+
+
+        <!-- PROFILE SETTINGS -->
+
+        <div class="settings-panel">
+
+            <div class="settings-title">
+
+                <span>
+                    PROFILE
+                </span>
+
+                <h2>
+                    Account & Profile
+                </h2>
+
+            </div>
+
+
+            <div
+                id="settingsProfile"
+                class="settings-list"
+            ></div>
+
+        </div>
+
+
+        <!-- STUDY SETTINGS -->
+
+        <div class="settings-panel">
+
+            <div class="settings-title">
+
+                <span>
+                    STUDY
+                </span>
+
+                <h2>
+                    Study Preferences
+                </h2>
+
+            </div>
+
+
+            <label class="setting-row">
+
+                <div>
+
+                    <strong>
+                        Daily Study Goal
+                    </strong>
+
+                    <small>
+                        Set your target study time.
+                    </small>
+
+                </div>
+
+                <select id="dailyStudyGoal">
+
+                    <option value="30">
+                        30 min
+                    </option>
+
+                    <option value="60">
+                        1 hour
+                    </option>
+
+                    <option value="120">
+                        2 hours
+                    </option>
+
+                    <option value="180">
+                        3 hours
+                    </option>
+
+                    <option value="300">
+                        5 hours
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label class="setting-row">
+
+                <div>
+
+                    <strong>
+                        Auto-save Progress
+                    </strong>
+
+                    <small>
+                        Save your progress automatically.
+                    </small>
+
+                </div>
+
+                <input
+                    id="autoSaveSetting"
+                    type="checkbox"
+                    checked
+                >
+
+            </label>
+
+        </div>
+
+
+        <!-- APP SETTINGS -->
+
+        <div class="settings-panel">
+
+            <div class="settings-title">
+
+                <span>
+                    APP
+                </span>
+
+                <h2>
+                    Application Settings
+                </h2>
+
+            </div>
+
+
+            <button
+                id="clearLocalDataBtn"
+                class="settings-action danger"
+                type="button"
+            >
+                Clear Local App Data
+            </button>
+
+
+            <button
+                id="logoutBtn"
+                class="settings-action"
+                type="button"
+            >
+                Log Out
+            </button>
+
+        </div>
+
+
+        <!-- ABOUT -->
+
+        <div class="about-mastrey">
+
+            <div class="small-logo">
+                JM
+            </div>
+
+            <strong>
+                JEE MASTREY PRO
+            </strong>
+
+            <span>
+                LEARN • PRACTICE • MASTER
+            </span>
+
+            <small>
+                Version 1.0 Core
+            </small>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PROFILE PAGE
+===================================================== -->
+
+<section
+    id="profilePage"
+    class="page"
+>
+
+    <div id="profileContent"></div>
+
+</section>
+
+
+<!-- =====================================================
+     GLOBAL BOTTOM NAVIGATION
+===================================================== -->
+
+<nav class="bottom-nav">
+
+    <button
+        class="nav-btn active"
+        data-page="homePage"
+        type="button"
+    >
+        <span>⌂</span>
+        <small>Home</small>
+    </button>
+
+
+    <button
+        class="nav-btn"
+        data-page="learnPage"
+        type="button"
+    >
+        <span>◈</span>
+        <small>Learn</small>
+    </button>
+
+
+    <button
+        class="nav-btn"
+        data-page="practicePage"
+        type="button"
+    >
+        <span>□</span>
+        <small>Practice</small>
+    </button>
+
+
+    <button
+        class="nav-btn"
+        data-page="aiPage"
+        type="button"
+    >
+        <span>✦</span>
+        <small>AI</small>
+    </button>
+
+
+    <button
+        class="nav-btn"
+        data-page="profilePage"
+        type="button"
+    >
+        <span>○</span>
+        <small>Profile</small>
+    </button>
+
+</nav>
+
+</main>
+
+
+<!-- =====================================================
+     EXAM SWITCHER
+===================================================== -->
+
+<div
+    id="examModal"
+    class="modal hidden"
+>
+
+    <div class="modal-sheet">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span>
+                    EXAM
+                </span>
+
+                <h3>
+                    Switch your preparation
+                </h3>
+
+            </div>
+
+            <button
+                id="closeModal"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <button
+            class="switch-card"
+            data-switch="jee"
+            type="button"
+        >
+
+            <b>🔵</b>
+
+            <div>
+
+                <strong>
+                    JEE
+                </strong>
+
+                <small>
+                    Main + Advanced
+                </small>
+
+            </div>
+
+        </button>
+
+
+        <button
+            class="switch-card"
+            data-switch="neet"
+            type="button"
+        >
+
+            <b>🟢</b>
+
+            <div>
+
+                <strong>
+                    NEET
+                </strong>
+
+                <small>
+                    Medical Entrance
+                </small>
+
+            </div>
+
+        </button>
+
+
+        <button
+            class="switch-card"
+            data-switch="ca"
+            type="button"
+        >
+
+            <b>🟠</b>
+
+            <div>
+
+                <strong>
+                    CA
+                </strong>
+
+                <small>
+                    Chartered Accountancy
+                </small>
+
+            </div>
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PHASE 3 / LEGACY TEST MODAL
+===================================================== -->
+
+<div
+    id="testModal"
+    class="modal hidden"
+>
+
+    <div class="test-sheet">
+
+        <header class="test-header">
+
+            <button
+                id="closeTest"
+                type="button"
+            >
+                ×
+            </button>
+
+
+            <div>
+
+                <span id="testExam">
+                    JEE
+                </span>
+
+                <strong>
+                    Practice Test
+                </strong>
+
+            </div>
+
+
+            <div
+                id="timer"
+                class="timer"
+            >
+                60:00
+            </div>
+
+        </header>
+
+
+        <div id="testArea"></div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PHASE 2 MODAL
+===================================================== -->
+
+<div
+    id="p2Modal"
+    class="p2-modal hidden"
+>
+
+    <div class="p2-modal-sheet">
+
+        <div class="p2-modal-top">
+
+            <div>
+
+                <span>
+                    MASTREY PRO
+                </span>
+
+                <h3 id="p2ModalTitle">
+                    Study
+                </h3>
+
+            </div>
+
+            <button
+                id="p2ModalClose"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div id="p2ModalContent"></div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     GLOBAL TOASTS
+===================================================== -->
+
+<div
+    id="toast"
+    aria-live="polite"
+></div>
+
+
+<div
+    id="p2Toast"
+    aria-live="polite"
+></div>
+
+
+<div
+    id="phase4Toast"
+    aria-live="polite"
+></div>
+
+
+<!-- =====================================================
+     GLOBAL LOADING OVERLAY
+===================================================== -->
+
+<div
+    id="globalLoader"
+    class="global-loader hidden"
+>
+
+    <div class="loader-orb">
+        ✦
+    </div>
+
+    <strong id="globalLoaderTitle">
+        MASTREY PRO
+    </strong>
+
+    <span id="globalLoaderText">
+        Loading...
+    </span>
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     
+     IMPORTANT:
+     One main JS + separate JS for each major phase.
+===================================================== -->
+
+<script src="script.js"></script>
+
+<script src="phase2.js"></script>
+<script src="phase3.js"></script>
+<script src="phase4.js"></script>
+<script src="phase5.js"></script>
+<script src="phase6.js"></script>
+<script src="phase7.js"></script>
+<script src="phase8.js"></script>
+<script src="phase9.js"></script>
+
+</body>
+</html>
